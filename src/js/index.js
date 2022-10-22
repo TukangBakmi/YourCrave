@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import Stats from 'three/addons/libs/stats.module.js';
-import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';    //Supaya bisa masukin file .gltf
 
 let camera, scene, renderer;
 let container, stats, pivot;
@@ -9,7 +9,7 @@ var mousePosition, rayCaster, btnPlay;  //Menggunakan rayCaster untuk hover obje
 
 //Kecepatan rotasi kamera
 const cam_speed = 0.001;
-
+//Ini URL world yg udah jadi, formatnya dijadiin gltf, nanti di-load di bawah
 const world = new URL('../img/scene.gltf', import.meta.url);
 
 init();     //initialize
@@ -46,6 +46,7 @@ function init() {
     stats = new Stats();
     container.appendChild( stats.dom );
     
+    //Load gltf-nya, trus dimasukin ke scene
     const assetLoader = new GLTFLoader();
     assetLoader.load(world.href, function(gltf){
         const model = gltf.scene;
