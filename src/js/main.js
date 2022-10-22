@@ -117,7 +117,7 @@ function init() {
     const geometry = BufferGeometryUtils.mergeBufferGeometries( geometries );
     geometry.computeBoundingSphere();
 
-    const texture = new THREE.TextureLoader().load( 'textures/minecraft/atlas.png' );
+    const texture = new THREE.TextureLoader().load( './src/img/grass.png' );
     texture.magFilter = THREE.NearestFilter;
 
     const mesh = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { map: texture, side: THREE.DoubleSide } ) );
