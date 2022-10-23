@@ -7,8 +7,12 @@ let container, stats, pivot;
 let directionalLight;
 var mousePosition, rayCaster, btnPlay;  //Menggunakan rayCaster untuk hover object
 
-//Kecepatan rotasi kamera
+//Atribut kamera
 const cam_speed = 0.001;
+const cam_x_position = 0;
+const cam_y_position = 5000;
+const cam_z_position = 0;
+const cam_a = 200-(100*Math.sqrt(3));
 //Ini URL world yg udah jadi, formatnya dijadiin gltf, nanti di-load di bawah
 const world = new URL('../img/scene.gltf', import.meta.url);
 
@@ -20,9 +24,10 @@ function init() {
     container = document.getElementById( 'container' );
 
     //Menggunakan jenis kamera "Perspective Camera"
-    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 20000 );
+    camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 20000 );
     //Mengatur posisi awal kamera
-    camera.position.set(0,4000,0);
+    camera.position.set(cam_x_position,cam_y_position,cam_z_position);
+    camera.lookAt(new THREE.Vector3(cam_x_position,0,-(cam_y_position*(2+Math.sqrt(3)))+cam_z_position));
 
     //Membuat Scene dan warna backgroundnya
     scene = new THREE.Scene();
@@ -35,7 +40,7 @@ function init() {
     const ambientLight = new THREE.AmbientLight( 0xFFFFFF );
     scene.add( ambientLight );
     directionalLight = new THREE.DirectionalLight( 0xffffff, 0.8 );
-    directionalLight.position.set(0, 1000, 1000).normalize();
+    directionalLight.position.set(cam_x_position, cam_y_position, cam_z_position+2800).normalize();
     scene.add( directionalLight );
 
     renderer = new THREE.WebGLRenderer( { antialias: true } );
@@ -58,7 +63,7 @@ function init() {
     
     // Texture YOURCRAVE
     var loader = new THREE.TextureLoader();
-    var plane = new THREE.PlaneGeometry(625, 77);
+    var plane = new THREE.PlaneGeometry(700, 70);
     var material = new THREE.MeshLambertMaterial({
         map: loader.load('./src/img/yourcrave.png'),
         transparent: true,
@@ -66,18 +71,20 @@ function init() {
         side: THREE.DoubleSide
     });
     var yourcrave = new THREE.Mesh(plane, material);
-    yourcrave.position.set(0,4100,-300)
+    yourcrave.position.set(cam_x_position,cam_y_position,cam_z_position-400)
     scene.add(yourcrave);
+    yourcrave.lookAt(cam_x_position,cam_y_position+cam_a,cam_z_position);
 
     // Texture BUTTON_PLAY
-    var plane = new THREE.PlaneGeometry(91, 29);
+    var plane = new THREE.PlaneGeometry(280, 84);
     var material = new THREE.MeshLambertMaterial({
         map: loader.load('./src/img/button_play.png'),
         side: THREE.DoubleSide
     });
     btnPlay = new THREE.Mesh(plane, material);
-    btnPlay.position.set(0,3960,-100)
+    btnPlay.position.set(cam_x_position,cam_y_position-(7*cam_a),cam_z_position-400+cam_a)
     scene.add(btnPlay);
+    btnPlay.lookAt(cam_x_position,cam_y_position-3*cam_a,cam_z_position);
 
     //Pivot untuk rotate object dan directionalLight
     pivot = new THREE.Group();
@@ -85,6 +92,7 @@ function init() {
     pivot.add( yourcrave );
     pivot.add( btnPlay );
     pivot.add( directionalLight );
+    pivot.add( camera )
 
     //Menggunakan rayCaster untuk hover object
     mousePosition = new THREE.Vector2();
@@ -98,7 +106,7 @@ function init() {
 
 function animate() {
 
-    camera.rotateY(cam_speed);      //Pergerakan kamera
+
     pivot.rotation.y += cam_speed;  //Pergerakan Yourcrave
 
     requestAnimationFrame( animate );
