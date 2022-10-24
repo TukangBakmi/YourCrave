@@ -587,7 +587,7 @@ class ThirdPersonCameraDemo {
         this._camera.aspect = window.innerWidth / window.innerHeight;
         this._camera.updateProjectionMatrix();
         this._threejs.setSize(window.innerWidth, window.innerHeight);
-    }
+    } 
 
     _RAF() {
         requestAnimationFrame((t) => {
