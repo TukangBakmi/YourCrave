@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import Stats from 'three/addons/libs/stats.module.js';
+import Stats from 'three/addons/libs/stats.module.js';      //Buat nampilin FPS
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';    //Supaya bisa masukin file .gltf
 
 let camera, scene, renderer;
@@ -48,6 +48,7 @@ function init() {
     renderer.setSize( window.innerWidth, window.innerHeight );
     container.appendChild( renderer.domElement );
 
+    //Nampilin FPS
     stats = new Stats();
     container.appendChild( stats.dom );
     
@@ -109,7 +110,7 @@ function animate() {
 
     requestAnimationFrame( animate );
     renderer.render( scene, camera );
-    stats.update();
+    stats.update();     //Update FPS
 
     //Menggunakan rayCaster untuk hover object
     rayCaster.setFromCamera(mousePosition, camera);

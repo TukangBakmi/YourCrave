@@ -1,5 +1,6 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
 import {FBXLoader} from 'https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/FBXLoader.js';
+import Stats from 'three/addons/libs/stats.module.js';  //Buat nampilin FPS
 
 class BasicCharacterControllerProxy {
     constructor(animations) {
@@ -525,8 +526,10 @@ class ThirdPersonCameraDemo {
         this._threejs.shadowMap.type = THREE.PCFSoftShadowMap;
         this._threejs.setPixelRatio(window.devicePixelRatio);
         this._threejs.setSize(window.innerWidth, window.innerHeight);
-
         document.body.appendChild(this._threejs.domElement);
+
+        this._stats = new Stats();
+        document.body.appendChild( this._stats.dom );
 
         //Membuat halaman menjadi responsive
         window.addEventListener('resize', () => {
@@ -591,29 +594,30 @@ class ThirdPersonCameraDemo {
 
     _RAF() {
         requestAnimationFrame((t) => {
-        if (this._previousRAF === null) {
+            if (this._previousRAF === null) {
+                this._previousRAF = t;
+            }
+
+            this._RAF();
+
+            this._threejs.render(this._scene, this._camera);
+            this._Step(t - this._previousRAF);
             this._previousRAF = t;
-        }
-
-        this._RAF();
-
-        this._threejs.render(this._scene, this._camera);
-        this._Step(t - this._previousRAF);
-        this._previousRAF = t;
         });
     }
 
     _Step(timeElapsed) {
         const timeElapsedS = timeElapsed * 0.001;
         if (this._mixers) {
-        this._mixers.map(m => m.update(timeElapsedS));
+            this._mixers.map(m => m.update(timeElapsedS));
         }
 
         if (this._controls) {
-        this._controls.Update(timeElapsedS);
+            this._controls.Update(timeElapsedS);
         }
 
         this._thirdPersonCamera.Update(timeElapsedS);
+        this._stats.update();     //Update FPS
     }
 }
 
