@@ -57,8 +57,6 @@ function init() {
         const model = gltf.scene;
         scene.add(model);
         model.position.set(0,0,0);
-    }, undefined, function(error){
-        console.error(error)
     });
     
     // Texture YOURCRAVE
