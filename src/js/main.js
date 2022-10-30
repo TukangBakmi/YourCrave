@@ -76,7 +76,7 @@ class BasicCharacterController {
 
     get Position() {
         return this._position;
-    }
+    } 
 
     get Rotation() {
         if (!this._target) {
