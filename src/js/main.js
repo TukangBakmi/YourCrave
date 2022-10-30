@@ -35,7 +35,7 @@ class BasicCharacterController {
 
     _LoadModels() {
         //Path resource
-        const res_path = './src/img/TestSteve/';
+        const res_path = './src/img/_roblox/';
         //Load file fbx
         const loader = new FBXLoader();
         loader.setPath(res_path);
@@ -67,10 +67,10 @@ class BasicCharacterController {
 
             const loader = new FBXLoader(this._manager);
             loader.setPath(res_path);
-            loader.load('walking.fbx', (a) => { _OnLoad('walk', a); });
+            loader.load('walk.fbx', (a) => { _OnLoad('walk', a); });
             loader.load('run.fbx', (a) => { _OnLoad('run', a); });
             loader.load('idle.fbx', (a) => { _OnLoad('idle', a); });
-            loader.load('jump.fbx', (a) => { _OnLoad('dance', a); });
+            loader.load('jump.fbx', (a) => { _OnLoad('jump', a); });
         });
     }
 
@@ -110,11 +110,11 @@ class BasicCharacterController {
 
         const acc = this._acceleration.clone();
         if (this._input._keys.shift) {
-            acc.multiplyScalar(2.0);
+            acc.multiplyScalar(3.0);
         }
 
-        if (this._stateMachine._currentState.Name == 'dance') {
-            acc.multiplyScalar(0.0);
+        if (this._stateMachine._currentState.Name == 'jump') {
+            acc.multiplyScalar(1.2);
         }
 
         if (this._input._keys.forward) {
@@ -272,7 +272,7 @@ class CharacterFSM extends FiniteStateMachine {
         this._AddState('idle', IdleState);
         this._AddState('walk', WalkState);
         this._AddState('run', RunState);
-        this._AddState('dance', DanceState);
+        this._AddState('jump', JumpState);
     }
 };
 
@@ -288,7 +288,7 @@ class State {
 };
 
 
-class DanceState extends State {
+class JumpState extends State {
     constructor(parent) {
         super(parent);
 
@@ -298,11 +298,11 @@ class DanceState extends State {
     }
 
     get Name() {
-        return 'dance';
+        return 'jump';
     }
 
     Enter(prevState) {
-        const curAction = this._parent._proxy._animations['dance'].action;
+        const curAction = this._parent._proxy._animations['jump'].action;
         const mixer = curAction.getMixer();
         mixer.addEventListener('finished', this._FinishedCallback);
 
@@ -321,11 +321,11 @@ class DanceState extends State {
 
     _Finished() {
         this._Cleanup();
-        this._parent.SetState('idle');
+        this._parent.SetState('run');
     }
 
     _Cleanup() {
-        const action = this._parent._proxy._animations['dance'].action;
+        const action = this._parent._proxy._animations['jump'].action;
         
         action.getMixer().removeEventListener('finished', this._CleanupCallback);
     }
@@ -379,6 +379,9 @@ class WalkState extends State {
             if (input._keys.shift) {
                 this._parent.SetState('run');
             }
+            if (input._keys.space) {
+                this._parent.SetState('jump');
+            }
             return;
         }
 
@@ -427,6 +430,9 @@ class RunState extends State {
             if (!input._keys.shift) {
                 this._parent.SetState('walk');
             }
+            if (input._keys.space){
+                    this._parent.SetState('jump');
+            }
             return;
         }
 
@@ -466,7 +472,7 @@ class IdleState extends State {
         if (input._keys.forward || input._keys.backward) {
             this._parent.SetState('walk');
         } else if (input._keys.space) {
-            this._parent.SetState('dance');
+            this._parent.SetState('jump');
         }
     }
 };
