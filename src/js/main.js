@@ -35,12 +35,12 @@ class BasicCharacterController {
 
     _LoadModels() {
         //Path resource
-        const res_path = './src/img/player/';
+        const res_path = './src/img/TestSteve/';
         //Load file fbx
         const loader = new FBXLoader();
         loader.setPath(res_path);
         loader.load('idle.fbx', (fbx) => {
-            fbx.scale.setScalar(0.1);
+            fbx.scale.setScalar(0.02);
             fbx.traverse(c => {
                 c.castShadow = true;
             });
@@ -67,10 +67,10 @@ class BasicCharacterController {
 
             const loader = new FBXLoader(this._manager);
             loader.setPath(res_path);
-            loader.load('walk.fbx', (a) => { _OnLoad('walk', a); });
+            loader.load('walking.fbx', (a) => { _OnLoad('walk', a); });
             loader.load('run.fbx', (a) => { _OnLoad('run', a); });
             loader.load('idle.fbx', (a) => { _OnLoad('idle', a); });
-            loader.load('hiphop.fbx', (a) => { _OnLoad('dance', a); });
+            loader.load('jump.fbx', (a) => { _OnLoad('dance', a); });
         });
     }
 
