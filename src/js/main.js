@@ -39,7 +39,7 @@ class BasicCharacterController {
         //Load file fbx
         const loader = new FBXLoader();
         loader.setPath(res_path);
-        loader.load('mremireh_o_desbiens.fbx', (fbx) => {
+        loader.load('idle.fbx', (fbx) => {
             fbx.scale.setScalar(0.1);
             fbx.traverse(c => {
                 c.castShadow = true;
@@ -70,7 +70,7 @@ class BasicCharacterController {
             loader.load('walk.fbx', (a) => { _OnLoad('walk', a); });
             loader.load('run.fbx', (a) => { _OnLoad('run', a); });
             loader.load('idle.fbx', (a) => { _OnLoad('idle', a); });
-            loader.load('dance.fbx', (a) => { _OnLoad('dance', a); });
+            loader.load('hiphop.fbx', (a) => { _OnLoad('dance', a); });
         });
     }
 
@@ -550,20 +550,36 @@ class ThirdPersonCameraDemo {
         //Menggunakan jenis lighting "Ambient Light" dan "Directional Light"
         const ambientLight = new THREE.AmbientLight( 0xFFFFFF );
         this._scene.add( ambientLight );
-        const directionalLight = new THREE.DirectionalLight(0xffffff);
-        directionalLight.position.set(0,0,100).normalize();
+        const directionalLight = new THREE.DirectionalLight(0xffffff,0.5);
+        directionalLight.position.set(0,2048,0);
+        directionalLight.target.position.set(0, 0, 0);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.bias = -0.001;
+        directionalLight.shadow.mapSize.width = 4096;
+        directionalLight.shadow.mapSize.height = 4096;
+        directionalLight.shadow.camera.near = 0.1;
+        directionalLight.shadow.camera.far = 500.0;
+        directionalLight.shadow.camera.near = 0.5;
+        directionalLight.shadow.camera.far = 500.0;
+        directionalLight.shadow.camera.left = 50;
+        directionalLight.shadow.camera.right = -50;
+        directionalLight.shadow.camera.top = 50;
+        directionalLight.shadow.camera.bottom = -50;
         this._scene.add( directionalLight );
+        const dLightHelper = new THREE.DirectionalLightHelper(directionalLight, 5);
+        this._scene.add(dLightHelper);
 
         //Ground dari PlaneGeometry
         const loader = new THREE.TextureLoader();
         const GroundGeometry = new THREE.PlaneGeometry(2048,2048);
-        const GroundMaterial = new THREE.MeshLambertMaterial({
+        const GroundMaterial = new THREE.MeshStandardMaterial({
             map: loader.load('./src/img/ground/land.png'),
             side: THREE.DoubleSide
         });
         const ground = new THREE.Mesh(GroundGeometry,GroundMaterial);
         this._scene.add(ground);
         ground.rotation.x = -0.5 * Math.PI;
+        ground.castShadow = false;
         ground.receiveShadow = true;
 
         this._mixers = [];
