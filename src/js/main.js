@@ -1,6 +1,8 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
+// Untuk import file FBX
 import {FBXLoader} from 'https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/FBXLoader.js';
-import Stats from 'three/addons/libs/stats.module.js';  //Buat nampilin FPS
+// Untuk menampilkan FPS
+import Stats from 'three/addons/libs/stats.module.js';  
 
 class BasicCharacterControllerProxy {
     constructor(animations) {
@@ -12,35 +14,44 @@ class BasicCharacterControllerProxy {
     }
 };
 
-
+// Class utama untuk Controller
 class BasicCharacterController {
     constructor(params) {
         this._Init(params);
     }
-
+    // Initialize
     _Init(params) {
         this._params = params;
+        
+        // Decceleration (pengurangan kecepatan). Jadi ketika status berubah menjadi berhenti, kecepatan xyz-nya akan dikurangi
         this._decceleration = new THREE.Vector3(-0.0005, -0.0001, -5.0);
-        this._acceleration = new THREE.Vector3(1, 0.25, 50.0);
+        // Acceleration (kecepatan). Ini kecepatan bergerak karakternya (nilai x,y,z)
+        this._acceleration = new THREE.Vector3(1, 0.25, 100.0);
+        // Percepatan
         this._velocity = new THREE.Vector3(0, 0, 0);
+        // Untuk perubahan posisi
         this._position = new THREE.Vector3();
 
+        // Untuk animasi
         this._animations = {};
         this._input = new BasicCharacterControllerInput();
         this._stateMachine = new CharacterFSM(
             new BasicCharacterControllerProxy(this._animations));
-
+        // Memanggil fungsi _LoadModels
         this._LoadModels();
     }
-
+    // Fungsi untuk memuat modelnya
     _LoadModels() {
-        //Path resource
-        const res_path = './src/img/_roblox/';
+        // Path utama resource
+        const res_path = './src/img/player/';
         //Load file fbx
         const loader = new FBXLoader();
         loader.setPath(res_path);
+        // Memuat model Idle
         loader.load('idle.fbx', (fbx) => {
+            // Untuk scale modelnya. Makin besar angkanya, model makin besar
             fbx.scale.setScalar(0.02);
+            // Memberi bayangan
             fbx.traverse(c => {
                 c.castShadow = true;
             });
@@ -49,7 +60,7 @@ class BasicCharacterController {
             this._params.scene.add(this._target);
 
             this._mixer = new THREE.AnimationMixer(this._target);
-
+            // Memberi status idle
             this._manager = new THREE.LoadingManager();
             this._manager.onLoad = () => {
                 this._stateMachine.SetState('idle');
@@ -60,11 +71,11 @@ class BasicCharacterController {
                 const action = this._mixer.clipAction(clip);
         
                 this._animations[animName] = {
-                clip: clip,
-                action: action,
+                    clip: clip,
+                    action: action,
                 };
             };
-
+            // Memuat file FBX lainnya dan memberi nama animasinya
             const loader = new FBXLoader(this._manager);
             loader.setPath(res_path);
             loader.load('walk.fbx', (a) => { _OnLoad('walk', a); });
@@ -84,14 +95,14 @@ class BasicCharacterController {
         }
         return this._target.quaternion;
     }
-
+    // Update stat
     Update(timeInSeconds) {
         if (!this._stateMachine._currentState) {
             return;
         }
 
         this._stateMachine.Update(timeInSeconds, this._input);
-
+        // Kecepatan move
         const velocity = this._velocity;
         const frameDecceleration = new THREE.Vector3(
             velocity.x * this._decceleration.x,
@@ -107,30 +118,36 @@ class BasicCharacterController {
         const _Q = new THREE.Quaternion();
         const _A = new THREE.Vector3();
         const _R = controlObject.quaternion.clone();
-
+        // Clone acceleration ke acc karena acc-nya akan dikali. Jadi agar acceleration-nya tetap, hanya acc-nya saja yang berubah
         const acc = this._acceleration.clone();
+        // Jika tombol shift ditekan, percepatan dikali 2
         if (this._input._keys.shift) {
-            acc.multiplyScalar(3.0);
+            acc.multiplyScalar(2.0);
         }
-
+        // Jika tombol space ditekan, percepatan dikali 1.1
         if (this._stateMachine._currentState.Name == 'jump') {
-            acc.multiplyScalar(1.2);
+            acc.multiplyScalar(1.1);
         }
-
+        // Jika forward ditekan, menambah nilai z sehingga character bergerak maju
         if (this._input._keys.forward) {
             velocity.z += acc.z * timeInSeconds;
         }
+        // Jika forward ditekan, mengurangi nilai z sehingga character bergerak mundur
         if (this._input._keys.backward) {
             velocity.z -= acc.z * timeInSeconds;
         }
+        // Jika left ditekan, mengubah sudut karakternya
         if (this._input._keys.left) {
             _A.set(0, 1, 0);
+            // Angka 4.0 adalah kecepatan berputarnya
             _Q.setFromAxisAngle(_A, 4.0 * Math.PI * timeInSeconds * this._acceleration.y);
             _R.multiply(_Q);
         }
+        // Jika right ditekan, mengubah sudut karakternya
         if (this._input._keys.right) {
             _A.set(0, 1, 0);
-            _Q.setFromAxisAngle(_A, 4.0 * -Math.PI * timeInSeconds * this._acceleration.y);
+            // Angka 4.0 adalah kecepatan berputarnya. Karena minus, arah putarnya berlawanan
+            _Q.setFromAxisAngle(_A, -4.0 * Math.PI * timeInSeconds * this._acceleration.y);
             _R.multiply(_Q);
         }
 
@@ -161,11 +178,12 @@ class BasicCharacterController {
     }
 };
 
+// Memberi inputan
 class BasicCharacterControllerInput {
     constructor() {
         this._Init();    
     }
-
+    // Initialize
     _Init() {
         this._keys = {
             forward: false,
@@ -175,80 +193,86 @@ class BasicCharacterControllerInput {
             space: false,
             shift: false,
         };
+        // Event listener keydown jika key ditekan, akan memanggil fungsi onKeyDown
         document.addEventListener('keydown', (e) => this._onKeyDown(e), false);
+        // Event listener keyup jika key dilepas, akan memanggil fungsi onKeyUp
         document.addEventListener('keyup', (e) => this._onKeyUp(e), false);
     }
-
+    // Fungsi onKeyDown
     _onKeyDown(event) {
+        // Jika key yang didefinisikan ditekan, mengubah nilainya menjadi true
         switch (event.keyCode) {
-        case 87: // w
-            this._keys.forward = true;
-            break;
-        case 65: // a
-            this._keys.left = true;
-            break;
-        case 83: // s
-            this._keys.backward = true;
-            break;
-        case 68: // d
-            this._keys.right = true;
-            break;
-        case 32: // SPACE
-            this._keys.space = true;
-            break;
-        case 16: // SHIFT
-            this._keys.shift = true;
-            break;
+            case 87: // w
+                this._keys.forward = true;
+                break;
+            case 65: // a
+                this._keys.left = true;
+                break;
+            case 83: // s
+                this._keys.backward = true;
+                break;
+            case 68: // d
+                this._keys.right = true;
+                break;
+            case 32: // SPACE
+                this._keys.space = true;
+                break;
+            case 16: // SHIFT
+                this._keys.shift = true;
+                break;
         }
     }
-
+    // Fungsi onKeyUp
     _onKeyUp(event) {
+        // Jika key yang didefinisikan dilepas, mengubah nilainya menjadi false
         switch(event.keyCode) {
-        case 87: // w
-            this._keys.forward = false;
-            break;
-        case 65: // a
-            this._keys.left = false;
-            break;
-        case 83: // s
-            this._keys.backward = false;
-            break;
-        case 68: // d
-            this._keys.right = false;
-            break;
-        case 32: // SPACE
-            this._keys.space = false;
-            break;
-        case 16: // SHIFT
-            this._keys.shift = false;
-            break;
+            // Angka ini adalah keycode three js, bisa dicek dihttps://www.toptal.com/developers/keycode
+            case 87: // w
+                this._keys.forward = false;
+                break;
+            case 65: // a
+                this._keys.left = false;
+                break;
+            case 83: // s
+                this._keys.backward = false;
+                break;
+            case 68: // d
+                this._keys.right = false;
+                break;
+            case 32: // SPACE
+                this._keys.space = false;
+                break;
+            case 16: // SHIFT
+                this._keys.shift = false;
+                break;
         }
     }
 };
 
-
+// FiniteStateMachine memiliki Subclass bernama CharacterFSM
 class FiniteStateMachine {
     constructor() {
         this._states = {};
         this._currentState = null;
     }
-
+    // Memberi nama status (idle, walk, run, jump)
     _AddState(name, type) {
         this._states[name] = type;
     }
-
+    // Mengatur statusnya (idle, walk, run, jump)
     SetState(name) {
+        // prevState adalah status sebelumnya
         const prevState = this._currentState;
-        
+        // Memberi nama pada status
         if (prevState) {
+            console.log(prevState);
             if (prevState.Name == name) {
                 return;
             }
             prevState.Exit();
         }
-
+        // state adalah status yang sekarang
         const state = new this._states[name](this);
-
         this._currentState = state;
         state.Enter(prevState);
     }
@@ -260,15 +284,16 @@ class FiniteStateMachine {
     }
 };
 
-
+// CharacterFSM merupakan Subclass dari FiniteStateMachine
 class CharacterFSM extends FiniteStateMachine {
     constructor(proxy) {
         super();
         this._proxy = proxy;
         this._Init();
     }
-
+    // Initialize
     _Init() {
+        // Memanggil fungsi _AddState dari superclassnya
         this._AddState('idle', IdleState);
         this._AddState('walk', WalkState);
         this._AddState('run', RunState);
@@ -276,7 +301,7 @@ class CharacterFSM extends FiniteStateMachine {
     }
 };
 
-
+// Superclass dari JumpState, WalkState, RunState, dan IdleState
 class State {
     constructor(parent) {
         this._parent = parent;
@@ -287,28 +312,28 @@ class State {
     Update() {}
 };
 
-
+// Posisi jump
 class JumpState extends State {
     constructor(parent) {
         super(parent);
-
+        // Function Finished untuk menandai kalau animasi jump hanya dilakukan sekali, tanpa perulangan
         this._FinishedCallback = () => {
             this._Finished();
         }
     }
-
+    // Memberi nama 'jump'
     get Name() {
         return 'jump';
     }
 
     Enter(prevState) {
+        // Memberi animasi jump
         const curAction = this._parent._proxy._animations['jump'].action;
+        // Menambahkan event listener finished
         const mixer = curAction.getMixer();
         mixer.addEventListener('finished', this._FinishedCallback);
-
         if (prevState) {
             const prevAction = this._parent._proxy._animations[prevState.Name].action;
-
             curAction.reset();  
             curAction.setLoop(THREE.LoopOnce, 1);
             curAction.clampWhenFinished = true;
@@ -318,15 +343,14 @@ class JumpState extends State {
             curAction.play();
         }
     }
-
+    // Jika sudah selesai, kembali ke action run
     _Finished() {
         this._Cleanup();
         this._parent.SetState('run');
     }
-
+    // Menghapus event listener finished
     _Cleanup() {
         const action = this._parent._proxy._animations['jump'].action;
-        
         action.getMixer().removeEventListener('finished', this._CleanupCallback);
     }
 
@@ -338,23 +362,22 @@ class JumpState extends State {
     }
 };
 
-
+// Posisi walk
 class WalkState extends State {
     constructor(parent) {
         super(parent);
     }
-
+    // Memberi nama 'walk'
     get Name() {
         return 'walk';
     }
 
     Enter(prevState) {
+        // Membuat animasi walk
         const curAction = this._parent._proxy._animations['walk'].action;
         if (prevState) {
             const prevAction = this._parent._proxy._animations[prevState.Name].action;
-
             curAction.enabled = true;
-
             if (prevState.Name == 'run') {
                 const ratio = curAction.getClip().duration / prevAction.getClip().duration;
                 curAction.time = prevAction.time * ratio;
@@ -363,7 +386,6 @@ class WalkState extends State {
                 curAction.setEffectiveTimeScale(1.0);
                 curAction.setEffectiveWeight(1.0);
             }
-
             curAction.crossFadeFrom(prevAction, 0.5, true);
             curAction.play();
         } else {
@@ -373,39 +395,41 @@ class WalkState extends State {
 
     Exit() {
     }
-
+    // Update stat
     Update(timeElapsed, input) {
+        // Jika input maju atau mundur:
         if (input._keys.forward || input._keys.backward) {
+            // Jika tombol shift juga ditekan, masuk ke status run
             if (input._keys.shift) {
                 this._parent.SetState('run');
             }
+            // Jika tombol space juga ditekan, masuk ke status jump
             if (input._keys.space) {
                 this._parent.SetState('jump');
             }
             return;
         }
-
+        // Jika tidak menekan tombol, masuk ke status idle
         this._parent.SetState('idle');
     }
 };
 
-
+// Ketika posisi run
 class RunState extends State {
     constructor(parent) {
         super(parent);
     }
-
+    // Memberi nama 'run'
     get Name() {
         return 'run';
     }
 
     Enter(prevState) {
+        // Membuat animasi run
         const curAction = this._parent._proxy._animations['run'].action;
         if (prevState) {
             const prevAction = this._parent._proxy._animations[prevState.Name].action;
-
             curAction.enabled = true;
-
             if (prevState.Name == 'walk') {
                 const ratio = curAction.getClip().duration / prevAction.getClip().duration;
                 curAction.time = prevAction.time * ratio;
@@ -414,7 +438,6 @@ class RunState extends State {
                 curAction.setEffectiveTimeScale(1.0);
                 curAction.setEffectiveWeight(1.0);
             }
-
             curAction.crossFadeFrom(prevAction, 0.5, true);
             curAction.play();
         } else {
@@ -424,33 +447,37 @@ class RunState extends State {
 
     Exit() {
     }
-
+    // Update stat
     Update(timeElapsed, input) {
+        // Jika input maju atau mundur:
         if (input._keys.forward || input._keys.backward) {
+            // Jika shift tidak ditekan, status berubah menjadi walk
             if (!input._keys.shift) {
                 this._parent.SetState('walk');
             }
+            // Jika space ditekan, masuk ke status jump
             if (input._keys.space){
                     this._parent.SetState('jump');
             }
             return;
         }
-
+        // Jika tidak ada tombol yang ditekan, masuk ke status idle
         this._parent.SetState('idle');
     }
 };
 
-
+// Ketika posisi Idle
 class IdleState extends State {
     constructor(parent) {
         super(parent);
     }
-
+    // Memberi nama 'idle'
     get Name() {
         return 'idle';
     }
 
     Enter(prevState) {
+        // Membuat animasi idle
         const idleAction = this._parent._proxy._animations['idle'].action;
         if (prevState) {
             const prevAction = this._parent._proxy._animations[prevState.Name].action;
@@ -467,8 +494,9 @@ class IdleState extends State {
 
     Exit() {
     }
-
+    // Update stat
     Update(_, input) {
+        // Jika diberi input tertentu, status idle akan diubah menjadi walk atau jump
         if (input._keys.forward || input._keys.backward) {
             this._parent.SetState('walk');
         } else if (input._keys.space) {
@@ -477,7 +505,7 @@ class IdleState extends State {
     }
 };
 
-
+// Pengaturan kamera
 class ThirdPersonCamera {
     constructor(params) {
         this._params = params;
@@ -487,26 +515,29 @@ class ThirdPersonCamera {
         this._currentLookat = new THREE.Vector3();
     }
 
+
+    // Jarak kamera dengan karakter
     _CalculateIdealOffset() {
-        const idealOffset = new THREE.Vector3(-15, 20, -30);
+        const idealOffset = new THREE.Vector3(-40, 30, -50);
         idealOffset.applyQuaternion(this._params.target.Rotation);
         idealOffset.add(this._params.target.Position);
         return idealOffset;
     }
 
+    // Sudut kamera
     _CalculateIdealLookat() {
-        const idealLookat = new THREE.Vector3(0, 10, 50);
+        const idealLookat = new THREE.Vector3(0, 0, 100);
         idealLookat.applyQuaternion(this._params.target.Rotation);
         idealLookat.add(this._params.target.Position);
         return idealLookat;
     }
 
+    // Update posisi kamera
     Update(timeElapsed) {
         const idealOffset = this._CalculateIdealOffset();
         const idealLookat = this._CalculateIdealLookat();
 
-        // const t = 0.05;
-        // const t = 4.0 * timeElapsed;
+        // Kecepatan update-nya
         const t = 1.0 - Math.pow(0.001, timeElapsed);
 
         this._currentPosition.lerp(idealOffset, t);
@@ -517,12 +548,13 @@ class ThirdPersonCamera {
     }
 }
 
-
+// Class Utama
 class ThirdPersonCameraDemo {
     constructor() {
         this._Initialize();
     }
 
+    // Init
     _Initialize() {
         this._threejs = new THREE.WebGLRenderer({
             antialias: true,
@@ -539,7 +571,9 @@ class ThirdPersonCameraDemo {
 
         //Membuat halaman menjadi responsive
         window.addEventListener('resize', () => {
-            this._OnWindowResize();
+            this._camera.aspect = window.innerWidth / window.innerHeight;
+            this._camera.updateProjectionMatrix();
+            this._threejs.setSize(window.innerWidth, window.innerHeight);
         }, false);
 
         //Menggunakan jenis kamera "Perspective Camera"
@@ -595,24 +629,19 @@ class ThirdPersonCameraDemo {
         this._RAF();
     }
 
+    //
     _LoadAnimatedModel() {
         const params = {
-        camera: this._camera,
-        scene: this._scene,
+            camera: this._camera,
+            scene: this._scene,
         }
         this._controls = new BasicCharacterController(params);
 
         this._thirdPersonCamera = new ThirdPersonCamera({
-        camera: this._camera,
-        target: this._controls,
+            camera: this._camera,
+            target: this._controls,
         });
     }
-
-    _OnWindowResize() {
-        this._camera.aspect = window.innerWidth / window.innerHeight;
-        this._camera.updateProjectionMatrix();
-        this._threejs.setSize(window.innerWidth, window.innerHeight);
-    } 
 
     _RAF() {
         requestAnimationFrame((t) => {
@@ -646,6 +675,7 @@ class ThirdPersonCameraDemo {
 
 let _APP = null;
 
+// Memanggil Class Utama ketika halaman di-load
 window.addEventListener('DOMContentLoaded', () => {
     _APP = new ThirdPersonCameraDemo();
 });
