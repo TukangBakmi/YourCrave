@@ -39,7 +39,7 @@ function init() {
     //Menggunakan jenis lighting "Ambient Light" dan "Directional Light"
     const ambientLight = new THREE.AmbientLight( 0xFFFFFF );
     scene.add( ambientLight );
-    directionalLight = new THREE.DirectionalLight( 0xffffff, 0.8 );
+    directionalLight = new THREE.DirectionalLight( 0xFFFFFF,0.7 );
     directionalLight.position.set(cam_x_position, cam_y_position, cam_z_position+2800).normalize();
     scene.add( directionalLight );
 
@@ -76,7 +76,7 @@ function init() {
 
     // Texture BUTTON_PLAY
     var plane = new THREE.PlaneGeometry(280, 84);
-    var material = new THREE.MeshLambertMaterial({
+    var material = new THREE.MeshBasicMaterial({
         map: loader.load('./src/img/button_play.png'),
         side: THREE.DoubleSide
     });
@@ -105,8 +105,7 @@ function init() {
 
 function animate() {
 
-
-    pivot.rotation.y += cam_speed;  //Pergerakan Yourcrave
+    pivot.rotation.y += cam_speed;  //Pergerakan semua object
 
     requestAnimationFrame( animate );
     renderer.render( scene, camera );
