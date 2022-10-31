@@ -569,45 +569,42 @@ class ThirdPersonCameraDemo {
         this._stats = new Stats();
         document.body.appendChild( this._stats.dom );
 
-        //Membuat halaman menjadi responsive
+        // Membuat halaman menjadi responsive
         window.addEventListener('resize', () => {
             this._camera.aspect = window.innerWidth / window.innerHeight;
             this._camera.updateProjectionMatrix();
             this._threejs.setSize(window.innerWidth, window.innerHeight);
         }, false);
 
-        //Menggunakan jenis kamera "Perspective Camera"
+        // Menggunakan jenis kamera "Perspective Camera"
         this._camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 20000 );
         this._camera.position.set(25, 10, 25);
 
-        //Membuat Scene dan warna backgroundnya
+        // Membuat Scene dan warna backgroundnya
         this._scene = new THREE.Scene();
         this._scene.background = new THREE.Color( 0XCFF7FF );
 
-        //Menambahkan kabut
+        // Menambahkan kabut
         this._scene.fog = new THREE.FogExp2(0xFFFFFF, 0.00007);
 
-        //Menggunakan jenis lighting "Ambient Light" dan "Directional Light"
-        const ambientLight = new THREE.AmbientLight( 0xFFFFFF );
+        // Menggunakan jenis lighting "Ambient Light"
+        const ambientLight = new THREE.AmbientLight( 0xFFFFFF,0.5 );
         this._scene.add( ambientLight );
-        const directionalLight = new THREE.DirectionalLight(0xffffff,0.5);
-        directionalLight.position.set(0,2048,0);
+        // Menggunakan jenis lighting "Directional Light"
+        const directionalLight = new THREE.DirectionalLight(0xffffff,1.5);
+        directionalLight.position.set(0, 320, 0);
         directionalLight.target.position.set(0, 0, 0);
         directionalLight.castShadow = true;
         directionalLight.shadow.bias = -0.001;
-        directionalLight.shadow.mapSize.width = 4096;
-        directionalLight.shadow.mapSize.height = 4096;
-        directionalLight.shadow.camera.near = 0.1;
-        directionalLight.shadow.camera.far = 500.0;
-        directionalLight.shadow.camera.near = 0.5;
-        directionalLight.shadow.camera.far = 500.0;
-        directionalLight.shadow.camera.left = 50;
-        directionalLight.shadow.camera.right = -50;
-        directionalLight.shadow.camera.top = 50;
-        directionalLight.shadow.camera.bottom = -50;
+        // Mempertajam bayangan
+        directionalLight.shadow.mapSize.width = 12000;
+        directionalLight.shadow.mapSize.height = 12000;
+        // Offset bayangannya
+        directionalLight.shadow.camera.left = 2048;
+        directionalLight.shadow.camera.right = -2048;
+        directionalLight.shadow.camera.top = 2048;
+        directionalLight.shadow.camera.bottom = -2048;
         this._scene.add( directionalLight );
-        const dLightHelper = new THREE.DirectionalLightHelper(directionalLight, 5);
-        this._scene.add(dLightHelper);
 
         //Ground dari PlaneGeometry
         const loader = new THREE.TextureLoader();
