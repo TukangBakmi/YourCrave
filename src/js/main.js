@@ -2,7 +2,13 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.mod
 // Untuk import file FBX
 import {FBXLoader} from 'https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/FBXLoader.js';
 // Untuk menampilkan FPS
-import Stats from 'three/addons/libs/stats.module.js';  
+import Stats from 'three/addons/libs/stats.module.js';
+// Untuk day/night
+let directionalLight, pivot;
+// Atribut world
+const worldWidth = 2048;
+const worldLength = 2048;
+const rotation = 0.01;
 
 class BasicCharacterControllerProxy {
     constructor(animations) {
@@ -175,6 +181,15 @@ class BasicCharacterController {
         if (this._mixer) {
             this._mixer.update(timeInSeconds);
         }
+
+        // Kecepatan rotasi light (Membuat day/night). If dan else untuk mempercepat durasi night. Jadi night akan berlangsung lebih cepat daripada day
+        if (pivot.rotation.z >= 2*Math.PI){
+            pivot.rotation.z = 0;
+        } else if(pivot.rotation.z <= 0.5*Math.PI || pivot.rotation.z >= 1.5*Math.PI){
+            pivot.rotation.z += rotation;
+        } else{
+            pivot.rotation.z += 4 * rotation;
+        }
     }
 };
 
@@ -265,7 +280,6 @@ class FiniteStateMachine {
         const prevState = this._currentState;
         // Memberi nama pada status
         if (prevState) {
-            console.log(prevState);
             if (prevState.Name == name) {
                 return;
             }
@@ -591,24 +605,30 @@ class ThirdPersonCameraDemo {
         const ambientLight = new THREE.AmbientLight( 0xFFFFFF,0.5 );
         this._scene.add( ambientLight );
         // Menggunakan jenis lighting "Directional Light"
-        const directionalLight = new THREE.DirectionalLight(0xffffff,1.5);
-        directionalLight.position.set(0, 320, 0);
+        directionalLight = new THREE.DirectionalLight(0xffffff,1.5 );
+        directionalLight.position.set(0, 0.5 * worldWidth, 0);
         directionalLight.target.position.set(0, 0, 0);
         directionalLight.castShadow = true;
         directionalLight.shadow.bias = -0.001;
+        directionalLight.shadow.camera.near = 0.5;
+        directionalLight.shadow.camera.far = worldWidth;
         // Mempertajam bayangan
-        directionalLight.shadow.mapSize.width = 12000;
-        directionalLight.shadow.mapSize.height = 12000;
+        directionalLight.shadow.mapSize.width = 6 * worldWidth;
+        directionalLight.shadow.mapSize.height = 6 * worldLength;
         // Offset bayangannya
-        directionalLight.shadow.camera.left = 2048;
-        directionalLight.shadow.camera.right = -2048;
-        directionalLight.shadow.camera.top = 2048;
-        directionalLight.shadow.camera.bottom = -2048;
+        directionalLight.shadow.camera.left = worldLength;
+        directionalLight.shadow.camera.right = -worldLength;
+        directionalLight.shadow.camera.top = worldLength;
+        directionalLight.shadow.camera.bottom = -worldLength;
         this._scene.add( directionalLight );
+        // Menambahkan directional light ke pivot agar bisa berotasi
+        pivot = new THREE.Group();
+        this._scene.add( pivot );
+        pivot.add( directionalLight );
 
         //Ground dari PlaneGeometry
         const loader = new THREE.TextureLoader();
-        const GroundGeometry = new THREE.PlaneGeometry(2048,2048);
+        const GroundGeometry = new THREE.PlaneGeometry(worldWidth,worldLength);
         const GroundMaterial = new THREE.MeshStandardMaterial({
             map: loader.load('./src/img/ground/land.png'),
             side: THREE.DoubleSide
@@ -669,32 +689,7 @@ class ThirdPersonCameraDemo {
     }
 }
 
-
-let _APP = null;
-
 // Memanggil Class Utama ketika halaman di-load
 window.addEventListener('DOMContentLoaded', () => {
-    _APP = new ThirdPersonCameraDemo();
+    let _APP = new ThirdPersonCameraDemo();
 });
-
-
-function _LerpOverFrames(frames, t) {
-    const s = new THREE.Vector3(0, 0, 0);
-    const e = new THREE.Vector3(100, 0, 0);
-    const c = s.clone();
-
-    for (let i = 0; i < frames; i++) {
-        c.lerp(e, t);
-    }
-    return c;
-}
-
-function _TestLerp(t1, t2) {
-    const v1 = _LerpOverFrames(100, t1);
-    const v2 = _LerpOverFrames(50, t2);
-    console.log(v1.x + ' | ' + v2.x);
-}
-
-_TestLerp(0.01, 0.01);
-_TestLerp(1.0 / 100.0, 1.0 / 50.0);
-_TestLerp(1.0 - Math.pow(0.3, 1.0 / 100.0), 1.0 - Math.pow(0.3, 1.0 / 50.0));
