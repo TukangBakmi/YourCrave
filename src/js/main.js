@@ -602,10 +602,10 @@ class ThirdPersonCameraDemo {
         this._scene.fog = new THREE.FogExp2(0xFFFFFF, 0.00007);
 
         // Menggunakan jenis lighting "Ambient Light"
-        const ambientLight = new THREE.AmbientLight( 0xFFFFFF,0.5 );
+        const ambientLight = new THREE.AmbientLight( 0xFFFFFF,0.25 );
         this._scene.add( ambientLight );
         // Menggunakan jenis lighting "Directional Light"
-        directionalLight = new THREE.DirectionalLight(0xffffff,1.5 );
+        directionalLight = new THREE.DirectionalLight(0xffffff,0.75 );
         directionalLight.position.set(0, 0.5 * worldWidth, 0);
         directionalLight.target.position.set(0, 0, 0);
         directionalLight.castShadow = true;
