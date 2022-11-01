@@ -12,6 +12,7 @@
     "vite": "^3.1.0"
   },
   "dependencies": {
+    "gsap": "^3.11.3",
     "suncalc": "^1.9.0",
     "three": "^0.145.0"
   }

@@ -21,7 +21,16 @@ animate();  //create animation
 
 function init() {
 
-    container = document.getElementById( 'container' );
+    renderer = new THREE.WebGLRenderer({
+        canvas: document.querySelector("#bg"),
+        antialias: true,
+    });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    // Menampilkan fps
+    stats = new Stats();
+    document.body.appendChild(stats.dom);
 
     //Menggunakan jenis kamera "Perspective Camera"
     camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 20000 );
@@ -42,15 +51,6 @@ function init() {
     directionalLight = new THREE.DirectionalLight( 0xFFFFFF,0.7 );
     directionalLight.position.set(cam_x_position, cam_y_position, cam_z_position+2800).normalize();
     scene.add( directionalLight );
-
-    renderer = new THREE.WebGLRenderer( { antialias: true } );
-    renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    container.appendChild( renderer.domElement );
-
-    //Nampilin FPS
-    stats = new Stats();
-    container.appendChild( stats.dom );
     
     //Load gltf-nya, trus dimasukin ke scene
     const assetLoader = new GLTFLoader();

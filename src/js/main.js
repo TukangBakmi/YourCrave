@@ -129,7 +129,7 @@ class BasicCharacterController {
         const acc = this._acceleration.clone();
         // Jika tombol shift ditekan, percepatan dikali 2
         if (this._input._keys.shift) {
-            acc.multiplyScalar(2.0);
+            acc.multiplyScalar(80.0);
         }
         // Jika tombol space ditekan, percepatan dikali 1.1
         if (this._stateMachine._currentState.Name == 'jump') {
@@ -572,6 +572,7 @@ class ThirdPersonCameraDemo {
     // Init
     _Initialize() {
         this._threejs = new THREE.WebGLRenderer({
+            canvas: document.querySelector("#bg"),
             antialias: true,
         });
         this._threejs.outputEncoding = THREE.sRGBEncoding;
@@ -580,7 +581,7 @@ class ThirdPersonCameraDemo {
         this._threejs.setPixelRatio(window.devicePixelRatio);
         this._threejs.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this._threejs.domElement);
-
+        // Menampilkan fps
         this._stats = new Stats();
         document.body.appendChild( this._stats.dom );
 
@@ -596,7 +597,7 @@ class ThirdPersonCameraDemo {
 
         // Membuat Scene dan warna backgroundnya
         this._scene = new THREE.Scene();
-        this._scene.background = new THREE.Color(0XCFF7FF);
+        this._scene.background = new THREE.Color(0X00316e);
 
         // Menambahkan kabut
         this._scene.fog = new THREE.FogExp2(0xFFFFFF, 0.001);
@@ -636,26 +637,7 @@ class ThirdPersonCameraDemo {
         pivot.add( directionalLight );
 
         // Shader untuk langit
-        var vertexShader = document.getElementById("vertexShader").textContent;
-        var fragmentShader = document.getElementById("fragmentShader").textContent;
-        var uniforms = {
-            topColor: { type: "c", value: new THREE.Color(0x0077ff) },
-            bottomColor: { type: "c", value: new THREE.Color(0xffffff) },
-            offset: { type: "f", value: 33 },
-            exponent: { type: "f", value: 0.6 }
-        };
-        uniforms.topColor.value.copy(hemiLight.color);
-        this._scene.fog.color.copy(uniforms.bottomColor.value);
-        // Menambahkan langit
-        var skyGeo = new THREE.SphereGeometry(worldWidth/2, worldWidth/10, worldLength/10);
-        var skyMat = new THREE.ShaderMaterial({
-            vertexShader: vertexShader,
-            fragmentShader: fragmentShader,
-            uniforms: uniforms,
-            side: THREE.BackSide
-        });
-        var sky = new THREE.Mesh(skyGeo, skyMat);
-        this._scene.add(sky);
+        this._SkyDome();
 
         //Ground dari PlaneGeometry
         const loader = new THREE.TextureLoader();
@@ -677,6 +659,29 @@ class ThirdPersonCameraDemo {
         this._RAF();
     }
 
+    _SkyDome(){
+        var vertexShaderDay = document.getElementById("vertexShader").textContent;
+        var fragmentShaderDay = document.getElementById("fragmentShader").textContent;
+        var uniforms = {
+            topColor: { type: "c", value: new THREE.Color(0x0077ff) },
+            bottomColor: { type: "c", value: new THREE.Color(0xffffff) },
+            offset: { type: "f", value: 33 },
+            exponent: { type: "f", value: 0.6 }
+        };
+        this._scene.fog.color.copy(uniforms.bottomColor.value);
+        // Menambahkan langit
+        var skyGeo = new THREE.SphereGeometry(worldWidth/2, worldWidth/10, worldLength/10);
+        var skyMat = new THREE.ShaderMaterial({
+            vertexShader: vertexShaderDay,
+            fragmentShader: fragmentShaderDay,
+            uniforms: uniforms,
+            side: THREE.BackSide,
+            transparent: true,
+            opacity: 0.5,
+        });
+        var sky = new THREE.Mesh(skyGeo, skyMat);
+        this._scene.add(sky);
+    }
     
     _LoadAnimatedModel() {
         const params = {
