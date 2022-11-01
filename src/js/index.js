@@ -3,8 +3,7 @@ import Stats from 'three/addons/libs/stats.module.js';      //Buat nampilin FPS
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';    //Supaya bisa masukin file .gltf
 
 let camera, scene, renderer;
-let container, stats, pivot;
-let directionalLight;
+let stats, pivot, dirLight;
 var mousePosition, rayCaster, btnPlay;  //Menggunakan rayCaster untuk hover object
 
 //Atribut kamera
@@ -48,9 +47,9 @@ function init() {
     //Menggunakan jenis lighting "Ambient Light" dan "Directional Light"
     const ambientLight = new THREE.AmbientLight( 0xFFFFFF );
     scene.add( ambientLight );
-    directionalLight = new THREE.DirectionalLight( 0xFFFFFF,0.7 );
-    directionalLight.position.set(cam_x_position, cam_y_position, cam_z_position+2800).normalize();
-    scene.add( directionalLight );
+    dirLight = new THREE.DirectionalLight( 0xFFFFFF,0.7 );
+    dirLight.position.set(cam_x_position, cam_y_position, cam_z_position+2800).normalize();
+    scene.add( dirLight );
     
     //Load gltf-nya, trus dimasukin ke scene
     const assetLoader = new GLTFLoader();
@@ -90,7 +89,7 @@ function init() {
     scene.add( pivot );
     pivot.add( yourcrave );
     pivot.add( btnPlay );
-    pivot.add( directionalLight );
+    pivot.add( dirLight );
     pivot.add( camera )
 
     //Menggunakan rayCaster untuk hover object
