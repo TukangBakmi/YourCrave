@@ -187,4 +187,12 @@ function Step(timeElapsed) {
     }
     thirdPersonCamera.Update(timeElapsedS);
     stats.update();     //Update FPS
+    // Kecepatan rotasi light (Membuat day/night). If dan else untuk mempercepat durasi night. Jadi night akan berlangsung lebih cepat daripada day
+    if (pivot.rotation.z >= 2*Math.PI){
+        pivot.rotation.z = 0;
+    } else if(pivot.rotation.z <= 0.5*Math.PI || pivot.rotation.z >= 1.5*Math.PI){
+        pivot.rotation.z += rotation;
+    } else{
+        pivot.rotation.z += 2 * rotation;
+    }
 }
