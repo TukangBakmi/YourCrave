@@ -3,6 +3,7 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.mod
 import {FBXLoader} from 'https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/FBXLoader.js';
 // Untuk menampilkan FPS
 import Stats from 'three/addons/libs/stats.module.js';
+
 // Untuk day/night
 let directionalLight, pivot;
 // Atribut world
@@ -56,7 +57,7 @@ class BasicCharacterController {
         // Memuat model Idle
         loader.load('idle.fbx', (fbx) => {
             // Untuk scale modelnya. Makin besar angkanya, model makin besar
-            fbx.scale.setScalar(0.02);
+            fbx.scale.setScalar(0.01);
             // Memberi bayangan
             fbx.traverse(c => {
                 c.castShadow = true;
@@ -188,7 +189,7 @@ class BasicCharacterController {
         } else if(pivot.rotation.z <= 0.5*Math.PI || pivot.rotation.z >= 1.5*Math.PI){
             pivot.rotation.z += rotation;
         } else{
-            pivot.rotation.z += 4 * rotation;
+            pivot.rotation.z += 2 * rotation;
         }
     }
 };
@@ -532,7 +533,7 @@ class ThirdPersonCamera {
 
     // Jarak kamera dengan karakter
     _CalculateIdealOffset() {
-        const idealOffset = new THREE.Vector3(-40, 30, -50);
+        const idealOffset = new THREE.Vector3(-20, 20, -20);
         idealOffset.applyQuaternion(this._params.target.Rotation);
         idealOffset.add(this._params.target.Position);
         return idealOffset;
@@ -540,7 +541,7 @@ class ThirdPersonCamera {
 
     // Sudut kamera
     _CalculateIdealLookat() {
-        const idealLookat = new THREE.Vector3(0, 0, 100);
+        const idealLookat = new THREE.Vector3(0, 0, 40);
         idealLookat.applyQuaternion(this._params.target.Rotation);
         idealLookat.add(this._params.target.Position);
         return idealLookat;
@@ -592,44 +593,74 @@ class ThirdPersonCameraDemo {
 
         // Menggunakan jenis kamera "Perspective Camera"
         this._camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 20000 );
-        this._camera.position.set(25, 10, 25);
 
         // Membuat Scene dan warna backgroundnya
         this._scene = new THREE.Scene();
-        this._scene.background = new THREE.Color( 0XCFF7FF );
+        this._scene.background = new THREE.Color(0XCFF7FF);
 
         // Menambahkan kabut
-        this._scene.fog = new THREE.FogExp2(0xFFFFFF, 0.00007);
+        this._scene.fog = new THREE.FogExp2(0xFFFFFF, 0.001);
 
-        // Menggunakan jenis lighting "Ambient Light"
-        const ambientLight = new THREE.AmbientLight( 0xFFFFFF,0.25 );
-        this._scene.add( ambientLight );
+        // Menggunakan jenis lighting "Hemisphere Light"
+        var hemiLight = new THREE.HemisphereLight(0XCFF7FF, 0xFFFFFF, 0.2);
+        hemiLight.position.set(0, 1024, 0);
+        this._scene.add(hemiLight);
         // Menggunakan jenis lighting "Directional Light"
-        directionalLight = new THREE.DirectionalLight(0xffffff,0.75 );
+        directionalLight = new THREE.DirectionalLight(0xffffff,0.6 );
         directionalLight.position.set(0, 0.5 * worldWidth, 0);
         directionalLight.target.position.set(0, 0, 0);
         directionalLight.castShadow = true;
         directionalLight.shadow.bias = -0.001;
+        // Jarak kamera agar bisa menghasilkan bayangan
         directionalLight.shadow.camera.near = 0.5;
         directionalLight.shadow.camera.far = worldWidth;
         // Mempertajam bayangan
         directionalLight.shadow.mapSize.width = 6 * worldWidth;
         directionalLight.shadow.mapSize.height = 6 * worldLength;
         // Offset bayangannya
-        directionalLight.shadow.camera.left = worldLength;
-        directionalLight.shadow.camera.right = -worldLength;
-        directionalLight.shadow.camera.top = worldLength;
-        directionalLight.shadow.camera.bottom = -worldLength;
+        directionalLight.shadow.camera.left = worldLength/2;
+        directionalLight.shadow.camera.right = -worldLength/2;
+        directionalLight.shadow.camera.top = worldLength/2;
+        directionalLight.shadow.camera.bottom = -worldLength/2;
         this._scene.add( directionalLight );
+
+        // const dLightHelper = new THREE.DirectionalLightHelper(directionalLight, 5);
+        // this._scene.add(dLightHelper);
+
+        // const dLightShadowHelper = new THREE.CameraHelper(directionalLight.shadow.camera);
+        // this._scene.add(dLightShadowHelper);
+
         // Menambahkan directional light ke pivot agar bisa berotasi
         pivot = new THREE.Group();
         this._scene.add( pivot );
         pivot.add( directionalLight );
 
+        // Shader untuk langit
+        var vertexShader = document.getElementById("vertexShader").textContent;
+        var fragmentShader = document.getElementById("fragmentShader").textContent;
+        var uniforms = {
+            topColor: { type: "c", value: new THREE.Color(0x0077ff) },
+            bottomColor: { type: "c", value: new THREE.Color(0xffffff) },
+            offset: { type: "f", value: 33 },
+            exponent: { type: "f", value: 0.6 }
+        };
+        uniforms.topColor.value.copy(hemiLight.color);
+        this._scene.fog.color.copy(uniforms.bottomColor.value);
+        // Menambahkan langit
+        var skyGeo = new THREE.SphereGeometry(worldWidth/2, worldWidth/10, worldLength/10);
+        var skyMat = new THREE.ShaderMaterial({
+            vertexShader: vertexShader,
+            fragmentShader: fragmentShader,
+            uniforms: uniforms,
+            side: THREE.BackSide
+        });
+        var sky = new THREE.Mesh(skyGeo, skyMat);
+        this._scene.add(sky);
+
         //Ground dari PlaneGeometry
         const loader = new THREE.TextureLoader();
-        const GroundGeometry = new THREE.PlaneGeometry(worldWidth,worldLength);
-        const GroundMaterial = new THREE.MeshStandardMaterial({
+        const GroundGeometry = new THREE.PlaneBufferGeometry(worldWidth,worldLength);
+        const GroundMaterial = new THREE.MeshPhongMaterial({
             map: loader.load('./src/img/ground/land.png'),
             side: THREE.DoubleSide
         });
@@ -646,7 +677,7 @@ class ThirdPersonCameraDemo {
         this._RAF();
     }
 
-    //
+    
     _LoadAnimatedModel() {
         const params = {
             camera: this._camera,
