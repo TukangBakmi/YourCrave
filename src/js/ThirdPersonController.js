@@ -2,6 +2,24 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
 import {FBXLoader} from 'https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/FBXLoader.js';
 
+// Kecepatan player
+const acceleration = 100.0;
+const decceleration = -5.0;
+const runSpeed = 80;        // berarti 80x lebih cepat dari jalan
+const jumpSpeed = 1.1;      // berarti 1.1x lebih cepat dari jalan
+const turnSpeed = 4.0;      // kecepatan turn left/right
+const charScale = 0.01;     // berarti player diperkecil 100x
+// Jarak kamera terhadap karakter
+const camOffsetX = -20.0;
+const camOffsetY = 20.0;
+const camOffsetZ = -40.0;
+// Titik yang dilihat kamera
+const camLookX = 0.0;
+const camLookY = 0.0;
+const camLookZ = 20.0;
+// Pergerakan kamera (nilainya 0-1). Makin kecil, makin cepat
+const camMoveSpeed = 0.001;
+
 class BasicCharacterControllerProxy {
     constructor(animations) {
         this._animations = animations;
@@ -13,7 +31,7 @@ class BasicCharacterControllerProxy {
 };
 
 // Class utama untuk Controller
-export class BasicCharacterController {
+class BasicCharacterController {
     constructor(params) {
         this._Init(params);
     }
@@ -22,9 +40,9 @@ export class BasicCharacterController {
         this._params = params;
         
         // Decceleration (pengurangan kecepatan). Jadi ketika status berubah menjadi berhenti, kecepatan xyz-nya akan dikurangi
-        this._decceleration = new THREE.Vector3(-0.0005, -0.0001, -5.0);
+        this._decceleration = new THREE.Vector3(decceleration/10000, decceleration/50000, decceleration);
         // Acceleration (kecepatan). Ini kecepatan bergerak karakternya (nilai x,y,z)
-        this._acceleration = new THREE.Vector3(1, 0.25, 100.0);
+        this._acceleration = new THREE.Vector3(acceleration/100, acceleration/400, acceleration);
         // Percepatan
         this._velocity = new THREE.Vector3(0, 0, 0);
         // Untuk perubahan posisi
@@ -48,7 +66,7 @@ export class BasicCharacterController {
         // Memuat model Idle
         loader.load('idle.fbx', (fbx) => {
             // Untuk scale modelnya. Makin besar angkanya, model makin besar
-            fbx.scale.setScalar(0.01);
+            fbx.scale.setScalar(charScale);
             // Memberi bayangan
             fbx.traverse(c => {
                 c.castShadow = true;
@@ -120,11 +138,11 @@ export class BasicCharacterController {
         const acc = this._acceleration.clone();
         // Jika tombol shift ditekan, percepatan dikali 2
         if (this._input._keys.shift) {
-            acc.multiplyScalar(80.0);
+            acc.multiplyScalar(runSpeed);
         }
         // Jika tombol space ditekan, percepatan dikali 1.1
         if (this._stateMachine._currentState.Name == 'jump') {
-            acc.multiplyScalar(1.1);
+            acc.multiplyScalar(jumpSpeed);
         }
         // Jika forward ditekan, menambah nilai z sehingga character bergerak maju
         if (this._input._keys.forward) {
@@ -138,14 +156,14 @@ export class BasicCharacterController {
         if (this._input._keys.left) {
             _A.set(0, 1, 0);
             // Angka 4.0 adalah kecepatan berputarnya
-            _Q.setFromAxisAngle(_A, 4.0 * Math.PI * timeInSeconds * this._acceleration.y);
+            _Q.setFromAxisAngle(_A, turnSpeed * Math.PI * timeInSeconds * this._acceleration.y);
             _R.multiply(_Q);
         }
         // Jika right ditekan, mengubah sudut karakternya
         if (this._input._keys.right) {
             _A.set(0, 1, 0);
             // Angka 4.0 adalah kecepatan berputarnya. Karena minus, arah putarnya berlawanan
-            _Q.setFromAxisAngle(_A, -4.0 * Math.PI * timeInSeconds * this._acceleration.y);
+            _Q.setFromAxisAngle(_A, turnSpeed * -Math.PI * timeInSeconds * this._acceleration.y);
             _R.multiply(_Q);
         }
 
@@ -503,7 +521,7 @@ class IdleState extends State {
 };
 
 // Pengaturan kamera
-export class ThirdPersonCamera {
+class ThirdPersonCamera {
     constructor(params) {
         this._params = params;
         this._camera = params.camera;
@@ -515,7 +533,7 @@ export class ThirdPersonCamera {
 
     // Jarak kamera dengan karakter
     _CalculateIdealOffset() {
-        const idealOffset = new THREE.Vector3(-20, 20, -20);
+        const idealOffset = new THREE.Vector3(camOffsetX, camOffsetY, camOffsetZ);
         idealOffset.applyQuaternion(this._params.target.Rotation);
         idealOffset.add(this._params.target.Position);
         return idealOffset;
@@ -523,7 +541,7 @@ export class ThirdPersonCamera {
 
     // Sudut kamera
     _CalculateIdealLookat() {
-        const idealLookat = new THREE.Vector3(0, 0, 40);
+        const idealLookat = new THREE.Vector3(camLookX, camLookY, camLookZ);
         idealLookat.applyQuaternion(this._params.target.Rotation);
         idealLookat.add(this._params.target.Position);
         return idealLookat;
@@ -535,7 +553,7 @@ export class ThirdPersonCamera {
         const idealLookat = this._CalculateIdealLookat();
 
         // Kecepatan update-nya
-        const t = 1.0 - Math.pow(0.001, timeElapsed);
+        const t = 1.0 - Math.pow(camMoveSpeed, timeElapsed);
 
         this._currentPosition.lerp(idealOffset, t);
         this._currentLookat.lerp(idealLookat, t);
@@ -544,3 +562,5 @@ export class ThirdPersonCamera {
         this._camera.lookAt(this._currentLookat);
     }
 }
+
+export { BasicCharacterController, ThirdPersonCamera };
