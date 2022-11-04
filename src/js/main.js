@@ -20,10 +20,10 @@ var onRenderFcts= [];
 const camAngle = 60;
 // Intensitas cahaya
 const hemiIntensity = 0.2;
-const dirIntensity = 0.6;
+const dirIntensity = 0.4;
 // Atribut world
 export const worldWidth = 2048;
-const rotationSpeed = 0.01;
+const dayTime = 6000;
 
 init();
 
@@ -58,7 +58,6 @@ function init() {
     scene.background = new THREE.Color(0XCFF7FF);
 
     // Menambahkan kabut
-    scene.fog = new THREE.FogExp2(0xFFFFFF, 0.001);
 
     // Menggunakan jenis lighting "Hemisphere Light"
     var hemiLight = new THREE.HemisphereLight(0XCFF7FF, 0xFFFFFF, hemiIntensity);
@@ -66,7 +65,7 @@ function init() {
     scene.add(hemiLight);
     // Menggunakan jenis lighting "Directional Light"
     dirLight = new THREE.DirectionalLight(0xffffff,dirIntensity );
-    dirLight.position.set(0, 0, worldWidth/2);
+    dirLight.position.set(0, 0, -worldWidth/2);
     dirLight.target.position.set(0, 0, 0);
     dirLight.castShadow = true;
     dirLight.shadow.bias = -0.001;
@@ -89,11 +88,9 @@ function init() {
     pivot.add( dirLight );
 
     // Sun angle untuk membedakan pagi, siang, sore, malam
-    var sunAngle = -1/6*Math.PI*2;
-    var sunAngle = -3/6*Math.PI*2;
+    var sunAngle = -Math.PI;
     onRenderFcts.push(function(delta, now){
-        var dayDuration	= 10;	// nb seconds for a full day cycle
-        sunAngle	+= delta/dayDuration * Math.PI*2;
+        sunAngle	+= Math.PI*2/dayTime ;
     })
     // night sky
     var starField	= new StarField()
@@ -185,12 +182,5 @@ function Step(timeElapsed) {
     }
     thirdPersonCamera.Update(timeElapsedS);
     stats.update();     //Update FPS
-    // Kecepatan rotasi light (Membuat day/night). If dan else untuk mempercepat durasi night. Jadi night akan berlangsung lebih cepat daripada day
-    if (pivot.rotation.x >= 2*Math.PI){
-        pivot.rotation.x = 0;
-    } else if(pivot.rotation.x <= 0.5*Math.PI || pivot.rotation.x >= 1.5*Math.PI){
-        pivot.rotation.x += rotationSpeed;
-    } else{
-        pivot.rotation.x += rotationSpeed*2;
-    }
+    pivot.rotation.x -= Math.PI*2/dayTime ;
 }

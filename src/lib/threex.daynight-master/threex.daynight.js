@@ -25,8 +25,10 @@ function StarField(){
 	var texture	= new THREE.TextureLoader().load('/src/img/galaxy_starfield.png')
 	var material	= new THREE.MeshBasicMaterial({
 		map	: texture,
-		side	: THREE.BackSide,
+		side	: THREE.DoubleSide,
  		color	: 0x808080,
+		transparent: true,
+		opacity: 0
 	})
 	var geometry	= new THREE.SphereGeometry(worldWidth/2, worldWidth/10, worldWidth/10)
 	var mesh	= new THREE.Mesh(geometry, material)
@@ -35,17 +37,20 @@ function StarField(){
 	this.update	= function(sunAngle){
 		var phase	= currentPhase(sunAngle)
 		if( phase === 'day' ){
-			mesh.visible	= false
+			mesh.material.opacity = 0;
 		}else if( phase === 'twilight' ){
-			mesh.visible	= false
+			if(mesh.material.opacity >= 0){
+				mesh.material.opacity -= 0.01;
+			}
 		} else {
-			mesh.visible	= true
-			mesh.rotation.x	= sunAngle / 5
-	        	var intensity	= Math.abs(Math.sin(sunAngle))
-	        	material.color.setRGB(intensity/10, intensity/10, intensity/10);
-				console.log(sunAngle);
-				console.log(intensity);
+			if(mesh.material.opacity <= 1){
+				mesh.material.opacity += 0.01;
+			}
+			mesh.rotation.x	= sunAngle / 5;
+	        var intensity	= Math.abs(Math.sin(sunAngle));
+	    	material.color.setRGB(intensity, intensity, intensity);
 		}
+//		console.log(sunAngle);
 	}
 }
 
@@ -54,13 +59,13 @@ function StarField(){
 //////////////////////////////////////////////////////////////////////////////////
 
 function SunLight(){
-	var light	= new THREE.DirectionalLight( 0xffffff,0.6 );
+	var light	= new THREE.DirectionalLight( 0xffffff, 0 );
 	this.object3d	= light
 	
 	this.update	= function(sunAngle){
 		light.position.x = 0;
-		light.position.y = Math.sin(sunAngle) * 90000;
-		light.position.z = Math.cos(sunAngle) * 90000;
+		light.position.y = Math.sin(sunAngle) * worldWidth/2;
+		light.position.z = Math.cos(sunAngle) * worldWidth/2;
 
 		var phase	= currentPhase(sunAngle)
 		if( phase === 'day' ){
@@ -79,7 +84,7 @@ function SunLight(){
 //////////////////////////////////////////////////////////////////////////////////
 
 function SunSphere(){
-	var geometry	= new THREE.SphereGeometry( 10, 30, 30 )
+	var geometry	= new THREE.SphereGeometry( 8, 30, 30 )
 	var material	= new THREE.MeshBasicMaterial({
 		color		: 0xff0000
 	})
@@ -137,7 +142,7 @@ function Skydom(){
 			'}',
 		].join('\n'),
 		uniforms	: uniforms,
-		side		: THREE.BackSide
+		side		: THREE.DoubleSide
 	});
 
 	var mesh	= new THREE.Mesh( geometry, material );
@@ -146,10 +151,10 @@ function Skydom(){
 	this.update	= function(sunAngle){
 		var phase	= currentPhase(sunAngle)
 		if( phase === 'day' ){
-			uniforms.topColor.value.set("rgb(207,247,255)");
+			uniforms.topColor.value.set("rgb(0,120,255)");
 			uniforms.bottomColor.value.set("rgb(255,"+ (Math.floor(Math.sin(sunAngle)*200)+55) + "," + (Math.floor(Math.sin(sunAngle)*200)) +")");
 		} else if( phase === 'twilight' ){
-			uniforms.topColor.value.set("rgb(207," + (247-Math.floor(Math.sin(sunAngle)*240*-1)) + "," + (255-Math.floor(Math.sin(sunAngle)*510*-1)) +")");
+			uniforms.topColor.value.set("rgb(0," + (120-Math.floor(Math.sin(sunAngle)*240*-1)) + "," + (255-Math.floor(Math.sin(sunAngle)*510*-1)) +")");
 			uniforms.bottomColor.value.set("rgb(" + (255-Math.floor(Math.sin(sunAngle)*510*-1)) + "," + (55-Math.floor(Math.sin(sunAngle)*110*-1)) + ",0)");
 		} else {
 			uniforms.topColor.value.set('black')
