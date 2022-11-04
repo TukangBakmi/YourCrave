@@ -1,10 +1,6 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
 import { worldWidth } from './main';
 
-var THREEx	= THREEx	|| {}
-
-THREEx.DayNight	= {}
-
 function currentPhase(sunAngle){
 	if( Math.sin(sunAngle) > Math.sin(0) ){
 		return 'day'
@@ -14,7 +10,6 @@ function currentPhase(sunAngle){
 		return 'night'
 	}
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////
 //		starfield								//
@@ -44,13 +39,12 @@ function StarField(){
 			}
 		} else {
 			if(mesh.material.opacity <= 1){
-				mesh.material.opacity += 0.01;
+				mesh.material.opacity += 0.001;
 			}
 			mesh.rotation.x	= sunAngle / 5;
 	        var intensity	= Math.abs(Math.sin(sunAngle));
 	    	material.color.setRGB(intensity, intensity, intensity);
 		}
-//		console.log(sunAngle);
 	}
 }
 
@@ -71,7 +65,6 @@ function SunLight(){
 		if( phase === 'day' ){
 			light.color.set("rgb(255,"+ (Math.floor(Math.sin(sunAngle)*200)+55) + "," + (Math.floor(Math.sin(sunAngle)*200)) +")");
 		}else if( phase === 'twilight' ){
-		        light.intensity = 0.6;
 	        	light.color.set("rgb(" + (255-Math.floor(Math.sin(sunAngle)*510*-1)) + "," + (55-Math.floor(Math.sin(sunAngle)*110*-1)) + ",0)");
 		} else {
 			light.intensity	= 0;
