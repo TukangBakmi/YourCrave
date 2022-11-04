@@ -1,6 +1,7 @@
 // import
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
 import {FBXLoader} from 'https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/FBXLoader.js';
+import {LoadingManager} from './main';
 
 // Kecepatan player
 const acceleration = 100.0;
@@ -60,7 +61,7 @@ class BasicCharacterController {
         // Path utama resource
         const res_path = './src/img/player/';
         //Load file fbx
-        const loader = new FBXLoader();
+        const loader = new FBXLoader(LoadingManager);
         loader.setPath(res_path);
         // Memuat model Idle
         loader.load('idle.fbx', (fbx) => {
@@ -76,8 +77,7 @@ class BasicCharacterController {
 
             this._mixer = new THREE.AnimationMixer(this._target);
             // Memberi status idle
-            this._manager = new THREE.LoadingManager();
-            this._manager.onLoad = () => {
+            LoadingManager.onLoad = () => {
                 this._stateMachine.SetState('idle');
             };
 
@@ -91,7 +91,7 @@ class BasicCharacterController {
                 };
             };
             // Memuat file FBX lainnya dan memberi nama animasinya
-            const loader = new FBXLoader(this._manager);
+            const loader = new FBXLoader(LoadingManager);
             loader.setPath(res_path);
             loader.load('walk.fbx', (a) => { _OnLoad('walk', a); });
             loader.load('run.fbx', (a) => { _OnLoad('run', a); });

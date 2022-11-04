@@ -15,6 +15,14 @@ const cam_a = 200-(100*Math.sqrt(3));
 //Ini URL world yg udah jadi, formatnya dijadiin gltf, nanti di-load di bawah
 const world = new URL('../img/landingPage/scene.gltf', import.meta.url);
 
+// Untuk loading screen
+const LoadingManager = new THREE.LoadingManager();
+const progressBarContainer = document.querySelector('.ring');
+// Jika sudah selesai di-load, display class ring-nya diubah jadi none
+LoadingManager.onLoad = function(){
+    progressBarContainer.style.display = 'none';
+}
+
 init();     //initialize
 animate();  //create animation
 
@@ -52,7 +60,7 @@ function init() {
     scene.add( dirLight );
     
     //Load gltf-nya, trus dimasukin ke scene
-    const assetLoader = new GLTFLoader();
+    const assetLoader = new GLTFLoader(LoadingManager);
     assetLoader.load(world.href, function(gltf){
         const model = gltf.scene;
         scene.add(model);
@@ -60,7 +68,7 @@ function init() {
     });
     
     // Texture YOURCRAVE
-    var loader = new THREE.TextureLoader();
+    var loader = new THREE.TextureLoader(LoadingManager);
     var plane = new THREE.PlaneGeometry(700, 70);
     var material = new THREE.MeshLambertMaterial({
         map: loader.load('./src/img/yourcrave.png'),

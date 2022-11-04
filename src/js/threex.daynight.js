@@ -1,5 +1,5 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
-import { worldWidth } from './main';
+import { LoadingManager, worldWidth } from './main';
 
 function currentPhase(sunAngle){
 	if( Math.sin(sunAngle) > Math.sin(0) ){
@@ -17,7 +17,7 @@ function currentPhase(sunAngle){
 
 function StarField(){
 	// create the mesh
-	var texture	= new THREE.TextureLoader().load('/src/img/galaxy_starfield.png')
+	var texture	= new THREE.TextureLoader(LoadingManager).load('/src/img/galaxy_starfield.png')
 	var material	= new THREE.MeshBasicMaterial({
 		map	: texture,
 		side	: THREE.DoubleSide,

@@ -22,8 +22,16 @@ const camAngle = 60;
 const hemiIntensity = 0.1;
 const dirIntensity = 0.2;
 // Atribut world
-export const worldWidth = 2048;
-const dayTime = 6000;
+export const worldWidth = 2048; // Lebar world
+const dayTime = 6000;   // Lama waktu
+
+// Untuk loading screen
+export const LoadingManager = new THREE.LoadingManager();
+const progressBarContainer = document.querySelector('.ring');
+// Jika sudah selesai di-load, display class ring-nya diubah jadi none
+LoadingManager.onLoad = function(){
+    progressBarContainer.style.display = 'none';
+}
 
 init();
 
@@ -53,11 +61,8 @@ function init() {
     // Menggunakan jenis kamera "Perspective Camera"
     camera = new THREE.PerspectiveCamera( camAngle, window.innerWidth / window.innerHeight, 1, 20000 );
 
-    // Membuat Scene dan warna backgroundnya
+    // Membuat Scene
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0XCFF7FF);
-
-    // Menambahkan kabut
 
     // Menggunakan jenis lighting "Hemisphere Light"
     var hemiLight = new THREE.HemisphereLight(0XCFF7FF, 0xFFFFFF, hemiIntensity);
@@ -118,7 +123,7 @@ function init() {
 	})
 
     //Ground dari PlaneGeometry
-    const loader = new THREE.TextureLoader();
+    const loader = new THREE.TextureLoader(LoadingManager);
     const GroundGeometry = new THREE.PlaneBufferGeometry(worldWidth,worldWidth);
     const GroundMaterial = new THREE.MeshPhongMaterial({
         map: loader.load('./src/img/ground/land.png'),
