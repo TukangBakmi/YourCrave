@@ -9,7 +9,7 @@ import {
     SunLight,
     Skydom,
     StarField
-} from '../lib/threex.daynight-master/threex.daynight.js';
+} from './threex.daynight.js';
 
 let camera, scene, renderer;
 let stats, pivot, dirLight;     // Untuk day/night

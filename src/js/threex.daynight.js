@@ -1,5 +1,5 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
-import { worldWidth } from '../../js/main';
+import { worldWidth } from './main';
 
 var THREEx	= THREEx	|| {}
 
