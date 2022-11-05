@@ -156,7 +156,7 @@ function LoadAnimatedModel() {
 
 function RAF() {
     var lastTimeMsec= null
-    requestAnimationFrame((t) => {
+    requestAnimationFrame(function animate(t, nowMsec){
         if (previousRAF === null) {
             previousRAF = t;
         }
@@ -164,9 +164,8 @@ function RAF() {
         renderer.render(scene, camera);
         Step(t - previousRAF);
         previousRAF = t;
-    });
-    requestAnimationFrame(function animate(nowMsec){
-		// measure time
+
+        // measure time
 		lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
 		var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
 		lastTimeMsec	= nowMsec
@@ -174,7 +173,7 @@ function RAF() {
 		onRenderFcts.forEach(function(onRenderFct){
 			onRenderFct(deltaMsec/1000, nowMsec/1000)
 		})
-	})
+    });
 }
 
 function Step(timeElapsed) {

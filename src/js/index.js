@@ -17,8 +17,12 @@ const world = new URL('../img/landingPage/scene.gltf', import.meta.url);
 
 // Untuk loading screen
 const LoadingManager = new THREE.LoadingManager();
-const progressBarContainer = document.querySelector('.ring');
-// Jika sudah selesai di-load, display class ring-nya diubah jadi none
+const progressBar = document.getElementById('progress-bar');
+LoadingManager.onProgress = function(url, loaded, total){
+    progressBar.value = (loaded/total) * 100;
+}
+const progressBarContainer = document.querySelector('.progress-bar-container');
+// Jika sudah selesai di-load, display-nya diubah jadi none
 LoadingManager.onLoad = function(){
     progressBarContainer.style.display = 'none';
 }
