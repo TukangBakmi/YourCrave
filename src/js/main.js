@@ -34,6 +34,7 @@ LoadingManager.onLoad = function(){
 }
 
 init();
+RAF();
 
 function init() {
 
@@ -139,7 +140,6 @@ function init() {
     previousRAF = null;
 
     LoadAnimatedModel();
-    RAF();
 }
     
 function LoadAnimatedModel() {
