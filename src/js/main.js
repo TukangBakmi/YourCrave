@@ -20,7 +20,7 @@ var onRenderFcts= [];
 const camAngle = 60;
 // Intensitas cahaya
 const hemiIntensity = 0.1;
-const dirIntensity = 0.2;
+const dirIntensity = 1;
 // Atribut world
 export const worldWidth = 2048; // Lebar world
 const dayTime = 6000;   // Lama waktu
