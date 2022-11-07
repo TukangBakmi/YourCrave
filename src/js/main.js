@@ -29,8 +29,10 @@ const dayTime = 6000;   // Lama waktu
 export const LoadingManager = new THREE.LoadingManager();
 const progressBarContainer = document.querySelector('.ring');
 // Jika sudah selesai di-load, display class ring-nya diubah jadi none
-LoadingManager.onLoad = function(){
-    progressBarContainer.style.display = 'none';
+LoadingManager.onProgress = function(url, loaded, total){
+    if(loaded == total){
+        progressBarContainer.style.display = 'none';
+    }
 }
 
 init();
