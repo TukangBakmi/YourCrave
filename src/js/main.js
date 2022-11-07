@@ -1,15 +1,15 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
 import Stats from 'three/addons/libs/stats.module.js';
 import {
-    BasicCharacterController,
-    ThirdPersonCamera
-} from './ThirdPersonController.js';
-import {
     SunSphere,
     SunLight,
     Skydom,
     StarField
 } from './threex.daynight.js';
+import {
+    BasicCharacterController,
+    ThirdPersonCamera
+} from './ThirdPersonController.js';
 
 let camera, scene, renderer;
 let stats, pivot, dirLight;     // Untuk day/night
@@ -29,11 +29,14 @@ const dayTime = 6000;   // Lama waktu
 export const LoadingManager = new THREE.LoadingManager();
 const progressBarContainer = document.querySelector('.ring');
 // Jika sudah selesai di-load, display class ring-nya diubah jadi none
-LoadingManager.onLoad = function(){
-    progressBarContainer.style.display = 'none';
+LoadingManager.onProgress = function(url, loaded, total){
+    if(loaded == total){
+        progressBarContainer.style.display = 'none';
+    }
 }
 
 init();
+LoadAnimatedModel();
 RAF();
 
 function init() {
@@ -139,15 +142,13 @@ function init() {
     mixers = [];
     previousRAF = null;
 
-    LoadAnimatedModel();
 }
     
 function LoadAnimatedModel() {
-    const params = {
+    controls = new BasicCharacterController({
         camera: camera,
         scene: scene,
-    }
-    controls = new BasicCharacterController(params);
+    });
     thirdPersonCamera = new ThirdPersonCamera({
         camera: camera,
         target: controls,
