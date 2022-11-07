@@ -1,15 +1,15 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
 import Stats from 'three/addons/libs/stats.module.js';
 import {
-    BasicCharacterController,
-    ThirdPersonCamera
-} from './ThirdPersonController.js';
-import {
     SunSphere,
     SunLight,
     Skydom,
     StarField
 } from './threex.daynight.js';
+import {
+    BasicCharacterController,
+    ThirdPersonCamera
+} from './ThirdPersonController.js';
 
 let camera, scene, renderer;
 let stats, pivot, dirLight;     // Untuk day/night
@@ -34,6 +34,7 @@ LoadingManager.onLoad = function(){
 }
 
 init();
+LoadAnimatedModel();
 RAF();
 
 function init() {
@@ -139,15 +140,13 @@ function init() {
     mixers = [];
     previousRAF = null;
 
-    LoadAnimatedModel();
 }
     
 function LoadAnimatedModel() {
-    const params = {
+    controls = new BasicCharacterController({
         camera: camera,
         scene: scene,
-    }
-    controls = new BasicCharacterController(params);
+    });
     thirdPersonCamera = new ThirdPersonCamera({
         camera: camera,
         target: controls,
