@@ -13,7 +13,7 @@ const cam_y_position = 5000;
 const cam_z_position = 0;
 const cam_a = 200-(100*Math.sqrt(3));
 //Ini URL world yg udah jadi, formatnya dijadiin gltf, nanti di-load di bawah
-const world = new URL('../img/landingPage/scene.gltf', import.meta.url);
+const world = new URL('../img/landingPage/minecraft_village.glb', import.meta.url);
 
 // Untuk loading screen
 const LoadingManager = new THREE.LoadingManager();
