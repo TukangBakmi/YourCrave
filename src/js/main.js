@@ -11,6 +11,9 @@ import {
     ThirdPersonCamera
 } from './ThirdPersonController.js';
 
+let obstaclesMeshes = [];
+let obstaclesBodies = [];
+
 let camera, scene, renderer;
 let stats, pivot, dirLight;     // Untuk day/night
 let mixers, previousRAF;        // Animation update
@@ -38,6 +41,7 @@ LoadingManager.onProgress = function(url, loaded, total){
 init();
 LoadAnimatedModel();
 RAF();
+addObstacle();
 
 function init() {
 
@@ -174,7 +178,12 @@ function RAF() {
 		onRenderFcts.forEach(function(onRenderFct){
 			onRenderFct(deltaMsec/1000, nowMsec/1000)
 		})
-    });
+
+        for (let i = 0; i < obstaclesBodies.length; i++) {
+            obstaclesMeshes[i].position.copy(obstaclesBodies[i].position);
+                obstaclesMeshes[i].quaternion.copy(obstaclesBodies[i].quaternion);
+            }
+        });
 }
 
 function Step(timeElapsed) {
@@ -189,3 +198,19 @@ function Step(timeElapsed) {
     stats.update();     //Update FPS
     pivot.rotation.x -= Math.PI*2/dayTime ;
 }
+
+function addObstacle(){
+ 
+    let geometry = new THREE.BoxGeometry(20,30,20);
+    const texture = new THREE.TextureLoader().load( "src/img/test.png" );
+  
+    let material = new THREE.MeshBasicMaterial({ map: texture});
+  
+    let obstacle = new THREE.Mesh(geometry, material);
+
+    for (let i = 0; i < 5; i++) {
+		let obstacleMesh = obstacle.clone();
+		scene.add(obstacleMesh);
+		obstaclesMeshes.push(obstacleMesh);
+	}
+  }
