@@ -1,4 +1,4 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
+import * as module from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
 import Stats from 'three/addons/libs/stats.module.js';
 import {
     SunSphere,
@@ -10,14 +10,13 @@ import {
     BasicCharacterController,
     ThirdPersonCamera
 } from './ThirdPersonController.js';
-
-let obstaclesMeshes = [];
-let obstaclesBodies = [];
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 let camera, scene, renderer;
 let stats, pivot, dirLight;     // Untuk day/night
 let mixers, previousRAF;        // Animation update
 let controls, thirdPersonCamera;
+let world, debugRenderer, timeStamp;       // Untuk Physics World
 var onRenderFcts= [];
 // Lebar sudut kamera
 const camAngle = 60;
@@ -41,11 +40,10 @@ LoadingManager.onProgress = function(url, loaded, total){
 init();
 LoadAnimatedModel();
 RAF();
-addObstacle();
 
 function init() {
 
-    renderer = new THREE.WebGLRenderer({
+    renderer = new module.WebGLRenderer({
         canvas: document.querySelector("#bg"),
         antialias: true,
     });
@@ -67,10 +65,10 @@ function init() {
     }, false);
 
     // Menggunakan jenis kamera "Perspective Camera"
-    camera = new THREE.PerspectiveCamera( camAngle, window.innerWidth / window.innerHeight, 1, 20000 );
+    camera = new THREE.PerspectiveCamera( camAngle, window.innerWidth / window.innerHeight, 1, 2*worldWidth );
 
     // Membuat Scene
-    scene = new THREE.Scene();
+    scene = new module.Scene();
 
     // Menggunakan jenis lighting "Hemisphere Light"
     var hemiLight = new THREE.HemisphereLight(0XCFF7FF, 0xFFFFFF, hemiIntensity);
@@ -130,11 +128,23 @@ function init() {
 		skydom.update(sunAngle)
 	})
 
-    //Ground dari PlaneGeometry
+    // World yang dipengaruhi physics
+    world = new CANNON.World();
+    world.gravity.set(0,-10,0);
+    world.broadphase = new CANNON.NaiveBroadphase();
+    timeStamp = 1.0/60.0;
+
+    // Plane Cannon js
+    let plane = new CANNON.Box(new CANNON.Vec3(worldWidth,worldWidth,0.1));
+    let planebody = new CANNON.Body({shape:plane, mass:0});
+    planebody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0), -Math.PI/2);
+    world.addBody(planebody);
+
+    // Plane Three js
     const loader = new THREE.TextureLoader(LoadingManager);
-    const GroundGeometry = new THREE.PlaneBufferGeometry(worldWidth,worldWidth);
+    const GroundGeometry = new THREE.PlaneGeometry(worldWidth,worldWidth);
     const GroundMaterial = new THREE.MeshPhongMaterial({
-        map: loader.load('./src/img/ground/land.png'),
+        map: loader.load('./src/img/map/_map.png'),
         side: THREE.DoubleSide
     });
     const ground = new THREE.Mesh(GroundGeometry,GroundMaterial);
@@ -143,30 +153,25 @@ function init() {
     ground.castShadow = false;
     ground.receiveShadow = true;
 
+    debugRenderer = new THREE.CannonDebugRenderer(scene,world);
+
     mixers = [];
     previousRAF = null;
 
 }
-    
-function LoadAnimatedModel() {
-    controls = new BasicCharacterController({
-        camera: camera,
-        scene: scene,
-    });
-    thirdPersonCamera = new ThirdPersonCamera({
-        camera: camera,
-        target: controls,
-    });
-}
 
 function RAF() {
+    // Update physics
+    world.step(timeStamp);
+    debugRenderer.update();
+
+    renderer.render(scene, camera);
     var lastTimeMsec= null
     requestAnimationFrame(function animate(t, nowMsec){
         if (previousRAF === null) {
             previousRAF = t;
         }
         RAF();
-        renderer.render(scene, camera);
         Step(t - previousRAF);
         previousRAF = t;
 
@@ -178,12 +183,7 @@ function RAF() {
 		onRenderFcts.forEach(function(onRenderFct){
 			onRenderFct(deltaMsec/1000, nowMsec/1000)
 		})
-
-        for (let i = 0; i < obstaclesBodies.length; i++) {
-            obstaclesMeshes[i].position.copy(obstaclesBodies[i].position);
-                obstaclesMeshes[i].quaternion.copy(obstaclesBodies[i].quaternion);
-            }
-        });
+    });
 }
 
 function Step(timeElapsed) {
@@ -198,19 +198,14 @@ function Step(timeElapsed) {
     stats.update();     //Update FPS
     pivot.rotation.x -= Math.PI*2/dayTime ;
 }
-
-function addObstacle(){
- 
-    let geometry = new THREE.BoxGeometry(20,30,20);
-    const texture = new THREE.TextureLoader().load( "src/img/test.png" );
-  
-    let material = new THREE.MeshBasicMaterial({ map: texture});
-  
-    let obstacle = new THREE.Mesh(geometry, material);
-
-    for (let i = 0; i < 5; i++) {
-		let obstacleMesh = obstacle.clone();
-		scene.add(obstacleMesh);
-		obstaclesMeshes.push(obstacleMesh);
-	}
-  }
+    
+function LoadAnimatedModel() {
+    controls = new BasicCharacterController({
+        camera: camera,
+        scene: scene,
+    });
+    thirdPersonCamera = new ThirdPersonCamera({
+        camera: camera,
+        target: controls,
+    });
+}
