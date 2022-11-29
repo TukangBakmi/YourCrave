@@ -29,17 +29,19 @@ const dayTime = 6000;   // Lama waktu
 
 // Untuk loading screen
 export const LoadingManager = new THREE.LoadingManager();
-const progressBarContainer = document.querySelector('.ring');
+const progressBar = document.querySelector('.ring');
+const progressBarContainer = document.querySelector('.progress-bar-container');
 // Jika sudah selesai di-load, display class ring-nya diubah jadi none
 LoadingManager.onProgress = function(url, loaded, total){
     if(loaded == total){
+        progressBar.style.display = 'none';
         progressBarContainer.style.display = 'none';
     }
 }
 
 init();
 LoadAnimatedModel();
-RAF();
+animate();
 
 function init() {
 
@@ -56,6 +58,11 @@ function init() {
     // Menampilkan fps
     stats = new Stats();
     document.body.appendChild(stats.dom);
+
+    renderer.context.canvas.addEventListener("webglcontextlost", function(event) {
+        event.preventDefault();
+        window.location.href = "./main.html";
+    }, false);
 
     // Membuat halaman menjadi responsive
     window.addEventListener('resize', () => {
@@ -134,24 +141,18 @@ function init() {
     world.broadphase = new CANNON.NaiveBroadphase();
     timeStamp = 1.0/60.0;
 
-    // Plane Cannon js
-    let plane = new CANNON.Box(new CANNON.Vec3(worldWidth,worldWidth,0.1));
-    let planebody = new CANNON.Body({shape:plane, mass:0});
-    planebody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0), -Math.PI/2);
-    world.addBody(planebody);
-
-    // Plane Three js
-    const loader = new THREE.TextureLoader(LoadingManager);
-    const GroundGeometry = new THREE.PlaneGeometry(worldWidth,worldWidth);
-    const GroundMaterial = new THREE.MeshPhongMaterial({
-        map: loader.load('./src/img/map/_map.png'),
-        side: THREE.DoubleSide
+    addPlane();
+    const assetLoader = new GLTFLoader(LoadingManager);
+    assetLoader.load('./src/img/objects/maple_tree (1).glb', function(gltf){
+        const model = gltf.scene;
+        scene.add(model);
+        model.position.set(0,0,20);
     });
-    const ground = new THREE.Mesh(GroundGeometry,GroundMaterial);
-    scene.add(ground);
-    ground.rotation.x = -0.5 * Math.PI;
-    ground.castShadow = false;
-    ground.receiveShadow = true;
+    assetLoader.load('./src/img/objects/hospital.glb', function(gltf){
+        const model = gltf.scene;
+        scene.add(model);
+        model.position.set(0,0,100);
+    });
 
     debugRenderer = new THREE.CannonDebugRenderer(scene,world);
 
@@ -160,18 +161,21 @@ function init() {
 
 }
 
-function RAF() {
+function animate() {
     // Update physics
     world.step(timeStamp);
     debugRenderer.update();
 
     renderer.render(scene, camera);
+    stats.update();     //Update FPS
+    pivot.rotation.x -= Math.PI*2/dayTime;
+
     var lastTimeMsec= null
-    requestAnimationFrame(function animate(t, nowMsec){
+    requestAnimationFrame(function anim(t, nowMsec){
         if (previousRAF === null) {
             previousRAF = t;
         }
-        RAF();
+        animate();
         Step(t - previousRAF);
         previousRAF = t;
 
@@ -195,8 +199,6 @@ function Step(timeElapsed) {
         controls.Update(timeElapsedS);
     }
     thirdPersonCamera.Update(timeElapsedS);
-    stats.update();     //Update FPS
-    pivot.rotation.x -= Math.PI*2/dayTime ;
 }
     
 function LoadAnimatedModel() {
@@ -208,4 +210,25 @@ function LoadAnimatedModel() {
         camera: camera,
         target: controls,
     });
+}
+
+function addPlane(){
+    // Plane Cannon js
+    let plane = new CANNON.Box(new CANNON.Vec3(worldWidth/2,worldWidth/2,0.1));
+    let planebody = new CANNON.Body({shape:plane, mass:0});
+    planebody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0), -Math.PI/2);
+    world.addBody(planebody);
+
+    // Plane Three js
+    const loader = new THREE.TextureLoader(LoadingManager);
+    const GroundGeometry = new THREE.PlaneGeometry(worldWidth,worldWidth);
+    const GroundMaterial = new THREE.MeshPhongMaterial({
+        map: loader.load('./src/img/map/_map.png'),
+        side: THREE.DoubleSide
+    });
+    const ground = new THREE.Mesh(GroundGeometry,GroundMaterial);
+    scene.add(ground);
+    ground.rotation.x = -0.5 * Math.PI;
+    ground.castShadow = false;
+    ground.receiveShadow = true;
 }
