@@ -85,13 +85,28 @@
                     transform:rotate(405deg);
                 }
             }
+            .progress-bar-container {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 1);
+            }
         </style>
 	</head>
 	<body>
 		<canvas id="bg"></canvas>
+        <div class="progress-bar-container"></div>
         <div class="ring">Loading
             <span></span>
         </div>
+        <!-- Library three js untuk apply physics -->
+        <script src="node_modules/three/build/three.js"></script>
+        <!-- Library canon js untuk apply physics -->
+        <script src="node_modules/cannon/build/cannon.js"></script>
+        <script src="node_modules/cannon/tools/threejs/CannonDebugRenderer.js"></script>
 		<script type="module" src="./src/js/main.js"></script>
 	</body>
 </html>

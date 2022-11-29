@@ -1,0 +1,11 @@
+Model Information:
+* title:	tree-house
+* source:	https://sketchfab.com/3d-models/tree-house-0f13f4e289ea41d1912a2505ea09a733
+* author:	madexc (https://sketchfab.com/madexc)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "tree-house" (https://sketchfab.com/3d-models/tree-house-0f13f4e289ea41d1912a2505ea09a733) by madexc (https://sketchfab.com/madexc) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

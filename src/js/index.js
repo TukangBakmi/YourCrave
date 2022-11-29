@@ -13,7 +13,7 @@ const cam_y_position = 5000;
 const cam_z_position = 0;
 const cam_a = 200-(100*Math.sqrt(3));
 //Ini URL world yg udah jadi, formatnya dijadiin gltf, nanti di-load di bawah
-const world = new URL('../img/landingPage/scene.gltf', import.meta.url);
+const world = new URL('../img/landingPage/minecraft_village.glb', import.meta.url);
 
 // Untuk loading screen
 const LoadingManager = new THREE.LoadingManager();
@@ -44,7 +44,7 @@ function init() {
     document.body.appendChild(stats.dom);
 
     //Menggunakan jenis kamera "Perspective Camera"
-    camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 20000 );
+    camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 18000 );
     //Mengatur posisi awal kamera
     camera.position.set(cam_x_position,cam_y_position,cam_z_position);
     camera.lookAt(new THREE.Vector3(cam_x_position,0,-(cam_y_position*(2+Math.sqrt(3)))+cam_z_position));
@@ -52,9 +52,6 @@ function init() {
     //Membuat Scene dan warna backgroundnya
     scene = new THREE.Scene();
     scene.background = new THREE.Color( 0XCFF7FF );
-
-    //Menambahkan kabut
-    scene.fog = new THREE.FogExp2(0xFFFFFF, 0.00007);
 
     //Menggunakan jenis lighting "Ambient Light" dan "Directional Light"
     const ambientLight = new THREE.AmbientLight( 0xFFFFFF );

@@ -1,4 +1,4 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
+import * as module from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
 import Stats from 'three/addons/libs/stats.module.js';
 import {
     SunSphere,
@@ -10,11 +10,13 @@ import {
     BasicCharacterController,
     ThirdPersonCamera
 } from './ThirdPersonController.js';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 let camera, scene, renderer;
 let stats, pivot, dirLight;     // Untuk day/night
 let mixers, previousRAF;        // Animation update
 let controls, thirdPersonCamera;
+let world, debugRenderer, timeStamp;       // Untuk Physics World
 var onRenderFcts= [];
 // Lebar sudut kamera
 const camAngle = 60;
@@ -27,21 +29,23 @@ const dayTime = 6000;   // Lama waktu
 
 // Untuk loading screen
 export const LoadingManager = new THREE.LoadingManager();
-const progressBarContainer = document.querySelector('.ring');
+const progressBar = document.querySelector('.ring');
+const progressBarContainer = document.querySelector('.progress-bar-container');
 // Jika sudah selesai di-load, display class ring-nya diubah jadi none
 LoadingManager.onProgress = function(url, loaded, total){
     if(loaded == total){
+        progressBar.style.display = 'none';
         progressBarContainer.style.display = 'none';
     }
 }
 
 init();
 LoadAnimatedModel();
-RAF();
+animate();
 
 function init() {
 
-    renderer = new THREE.WebGLRenderer({
+    renderer = new module.WebGLRenderer({
         canvas: document.querySelector("#bg"),
         antialias: true,
     });
@@ -55,6 +59,11 @@ function init() {
     stats = new Stats();
     document.body.appendChild(stats.dom);
 
+    renderer.context.canvas.addEventListener("webglcontextlost", function(event) {
+        event.preventDefault();
+        window.location.href = "./main.html";
+    }, false);
+
     // Membuat halaman menjadi responsive
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
@@ -63,10 +72,10 @@ function init() {
     }, false);
 
     // Menggunakan jenis kamera "Perspective Camera"
-    camera = new THREE.PerspectiveCamera( camAngle, window.innerWidth / window.innerHeight, 1, 20000 );
+    camera = new THREE.PerspectiveCamera( camAngle, window.innerWidth / window.innerHeight, 1, 2*worldWidth );
 
     // Membuat Scene
-    scene = new THREE.Scene();
+    scene = new module.Scene();
 
     // Menggunakan jenis lighting "Hemisphere Light"
     var hemiLight = new THREE.HemisphereLight(0XCFF7FF, 0xFFFFFF, hemiIntensity);
@@ -126,43 +135,47 @@ function init() {
 		skydom.update(sunAngle)
 	})
 
-    //Ground dari PlaneGeometry
-    const loader = new THREE.TextureLoader(LoadingManager);
-    const GroundGeometry = new THREE.PlaneBufferGeometry(worldWidth,worldWidth);
-    const GroundMaterial = new THREE.MeshPhongMaterial({
-        map: loader.load('./src/img/ground/land.png'),
-        side: THREE.DoubleSide
+    // World yang dipengaruhi physics
+    world = new CANNON.World();
+    world.gravity.set(0,-10,0);
+    world.broadphase = new CANNON.NaiveBroadphase();
+    timeStamp = 1.0/60.0;
+
+    addPlane();
+    const assetLoader = new GLTFLoader(LoadingManager);
+    assetLoader.load('./src/img/objects/maple_tree (1).glb', function(gltf){
+        const model = gltf.scene;
+        scene.add(model);
+        model.position.set(0,0,20);
     });
-    const ground = new THREE.Mesh(GroundGeometry,GroundMaterial);
-    scene.add(ground);
-    ground.rotation.x = -0.5 * Math.PI;
-    ground.castShadow = false;
-    ground.receiveShadow = true;
+    assetLoader.load('./src/img/objects/hospital.glb', function(gltf){
+        const model = gltf.scene;
+        scene.add(model);
+        model.position.set(0,0,100);
+    });
+
+    debugRenderer = new THREE.CannonDebugRenderer(scene,world);
 
     mixers = [];
     previousRAF = null;
 
 }
-    
-function LoadAnimatedModel() {
-    controls = new BasicCharacterController({
-        camera: camera,
-        scene: scene,
-    });
-    thirdPersonCamera = new ThirdPersonCamera({
-        camera: camera,
-        target: controls,
-    });
-}
 
-function RAF() {
+function animate() {
+    // Update physics
+    world.step(timeStamp);
+    debugRenderer.update();
+
+    renderer.render(scene, camera);
+    stats.update();     //Update FPS
+    pivot.rotation.x -= Math.PI*2/dayTime;
+
     var lastTimeMsec= null
-    requestAnimationFrame(function animate(t, nowMsec){
+    requestAnimationFrame(function anim(t, nowMsec){
         if (previousRAF === null) {
             previousRAF = t;
         }
-        RAF();
-        renderer.render(scene, camera);
+        animate();
         Step(t - previousRAF);
         previousRAF = t;
 
@@ -186,6 +199,36 @@ function Step(timeElapsed) {
         controls.Update(timeElapsedS);
     }
     thirdPersonCamera.Update(timeElapsedS);
-    stats.update();     //Update FPS
-    pivot.rotation.x -= Math.PI*2/dayTime ;
+}
+    
+function LoadAnimatedModel() {
+    controls = new BasicCharacterController({
+        camera: camera,
+        scene: scene,
+    });
+    thirdPersonCamera = new ThirdPersonCamera({
+        camera: camera,
+        target: controls,
+    });
+}
+
+function addPlane(){
+    // Plane Cannon js
+    let plane = new CANNON.Box(new CANNON.Vec3(worldWidth/2,worldWidth/2,0.1));
+    let planebody = new CANNON.Body({shape:plane, mass:0});
+    planebody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0), -Math.PI/2);
+    world.addBody(planebody);
+
+    // Plane Three js
+    const loader = new THREE.TextureLoader(LoadingManager);
+    const GroundGeometry = new THREE.PlaneGeometry(worldWidth,worldWidth);
+    const GroundMaterial = new THREE.MeshPhongMaterial({
+        map: loader.load('./src/img/map/_map.png'),
+        side: THREE.DoubleSide
+    });
+    const ground = new THREE.Mesh(GroundGeometry,GroundMaterial);
+    scene.add(ground);
+    ground.rotation.x = -0.5 * Math.PI;
+    ground.castShadow = false;
+    ground.receiveShadow = true;
 }

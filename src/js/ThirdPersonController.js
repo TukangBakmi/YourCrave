@@ -4,20 +4,20 @@ import {FBXLoader} from 'https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm
 import {LoadingManager} from './main';
 
 // Kecepatan player
-const acceleration = 100.0;
+const acceleration = 60.0;
 const decceleration = -5.0;
 const runSpeed = 2;        // berarti 2x lebih cepat dari jalan
 const jumpSpeed = 1.1;      // berarti 1.1x lebih cepat dari jalan
 const turnSpeed = 4.0;      // kecepatan turn left/right
-const charScale = 0.01;     // berarti player diperkecil 100x
+const charScale = 0.006;     // berarti player diperkecil 100x
 // Jarak kamera terhadap karakter
-const camOffsetX = -20.0;
-const camOffsetY = 20.0;
-const camOffsetZ = -40.0;
+const camOffsetX = -12.0;
+const camOffsetY = 12.0;
+const camOffsetZ = -24.0;
 // Titik yang dilihat kamera
 const camLookX = 0.0;
-const camLookY = 10.0;
-const camLookZ = 20.0;
+const camLookY = 6.0;
+const camLookZ = 12.0;
 // Pergerakan kamera (nilainya 0-1). Makin kecil, makin cepat
 const camMoveSpeed = 0.001;
 
