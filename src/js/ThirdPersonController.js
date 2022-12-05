@@ -1,10 +1,11 @@
 // import
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
 import {FBXLoader} from 'https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/FBXLoader.js';
-import {LoadingManager} from './main';
+import {LoadingManager, worldWidth} from './main';
 
+export let charPosX, charPosY, charPosZ;
 // Kecepatan player
-const acceleration = 60.0;
+const acceleration = 80.0;
 const decceleration = -5.0;
 const runSpeed = 2;        // berarti 2x lebih cepat dari jalan
 const jumpSpeed = 1.1;      // berarti 1.1x lebih cepat dari jalan
@@ -74,6 +75,7 @@ class BasicCharacterController {
 
             this._target = fbx;
             this._params.scene.add(this._target);
+            this._target.position.set(0,0,0);
 
             this._mixer = new THREE.AnimationMixer(this._target);
             // Memberi status idle
@@ -110,12 +112,80 @@ class BasicCharacterController {
         }
         return this._target.quaternion;
     }
+
+    checkCollision(){
+        if(this._target.position.x < 97 && this._target.position.x > -161 && this._target.position.z < 425 && this._target.position.z >267 ){
+            if(this._target.position.x < 97){
+                this._target.position.x += 1;
+            }
+            else if(this._target.position.x > -161){
+                this._target.position.x -= 1;
+            }
+            else if(this._target.position.z < 425){
+                this._target.position.z += 1;
+            }
+            else if(this._target.position.z < 267){
+                this._target.position.z -= 1;
+            }
+        }
+    }
+    water(xpos, zpos){
+            if(this._target.position.x > xpos && this._target.position.z < zpos){
+                if(this._target.position.x-8 < xpos){
+                    this._target.position.x -= 1;
+                }
+                if(this._target.position.z+8 > zpos){
+                    this._target.position.z += 1;
+                }
+            }
+        
+    }
+    checkOutWater(){
+        this.water(6,-830);
+        this.water(22,-822);
+        this.water(30,-806);
+        this.water(38,-782);
+        this.water(46,-758);
+        this.water(54,-734);
+        this.water(62,-710);
+        this.water(70,-702);
+        this.water(78,-694);
+        this.water(86,-686);
+        this.water(102,-678);
+        this.water(118,-670);
+    }
+    checkInWorld(){
+        if(Math.pow(this._target.position.x, 2) + Math.pow(this._target.position.z, 2) + Math.pow(250,2) >= Math.pow(worldWidth/2, 2)){
+            if(this._target.position.x < 0 && this._target.position.z < 0){
+                this._target.position.x += 1;
+                this._target.position.z += 1;
+            }
+            else if(this._target.position.x > 0 && this._target.position.z < 0){
+                this._target.position.x -= 1;
+                this._target.position.z += 1;
+            }
+            else if(this._target.position.x < 0 && this._target.position.z > 0){
+                this._target.position.x += 1;
+                this._target.position.z -= 1;
+            }
+            else if(this._target.position.x > 0 && this._target.position.z > 0){
+                this._target.position.x -= 1;
+                this._target.position.z -= 1;
+            }
+        }
+    }
+
     // Update stat
     Update(timeInSeconds) {
         if (!this._stateMachine._currentState) {
             return;
         }
-
+        this.checkCollision();
+        this.checkOutWater();
+        this.checkInWorld();
+        charPosX =  this._target.position.x;
+        charPosY =  this._target.position.y;
+        charPosZ =  this._target.position.z;
         this._stateMachine.Update(timeInSeconds, this._input);
         // Kecepatan move
         const velocity = this._velocity;

@@ -1,4 +1,3 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
 import { LoadingManager, worldWidth } from './main';
 
 function currentPhase(sunAngle){
@@ -25,7 +24,7 @@ function StarField(){
 		transparent: true,
 		opacity: 0
 	})
-	var geometry	= new THREE.SphereGeometry(worldWidth/2, worldWidth/10, worldWidth/10)
+	var geometry	= new THREE.SphereGeometry(worldWidth/2-1, worldWidth/10, worldWidth/10)
 	var mesh	= new THREE.Mesh(geometry, material)
 	this.object3d	= mesh
 
@@ -35,7 +34,7 @@ function StarField(){
 			mesh.material.opacity = 0;
 		}else if( phase === 'twilight' ){
 			if(mesh.material.opacity >= 0){
-				mesh.material.opacity -= 0.01;
+				mesh.material.opacity -= 0.02;
 			}
 		} else {
 			if(mesh.material.opacity <= 1){
@@ -105,7 +104,7 @@ function SunSphere(){
 //////////////////////////////////////////////////////////////////////////////////
 
 function Skydom(){
-	var geometry	= new THREE.SphereGeometry( worldWidth/2+10, worldWidth/10, worldWidth/10 );
+	var geometry	= new THREE.SphereGeometry( worldWidth/2, worldWidth/10, worldWidth/10 );
 	var uniforms	= THREE.UniformsUtils.clone({
 		topColor	: { type: "c", value: new THREE.Color().setHSL( 0.6, 1, 0.75 ) },
 		bottomColor	: { type: "c", value: new THREE.Color( 0xffffff ) },
