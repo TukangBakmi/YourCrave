@@ -53,6 +53,18 @@ LoadingManager.onProgress = function(url, loaded, total){
 init();
 animate();
 
+//Add BackGround Sound
+let listener = new THREE.AudioListener();
+camera.add(listener);
+let backgroundSound = new THREE.Audio(listener);    
+let audioloader = new THREE.AudioLoader().load('./src/SoundAsset/BackGroundSong.mp3',
+(hasil)=>{
+    backgroundSound.setBuffer(hasil);
+    backgroundSound.play();
+    backgroundSound.setLoop(true);
+    backgroundSound.setVolume(0.5);
+});
+
 function init() {
 
     renderer = new module.WebGLRenderer({
