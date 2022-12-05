@@ -113,48 +113,105 @@ class BasicCharacterController {
         return this._target.quaternion;
     }
 
+    limit(left, right, bot, top){
+            if(this._target.position.x > left-2 && this._target.position.x < right+2 && this._target.position.z < bot+2 && this._target.position.z > top-2){
+                if(this._target.position.x-8 < left){
+                    this._target.position.x -= 0.8;
+                }
+                if(this._target.position.x+8 > right){
+                    this._target.position.x += 0.8;
+                }
+                if(this._target.position.z+8 > bot){
+                    this._target.position.z += 0.8;
+                }
+                if(this._target.position.z-8 < top){
+                    this._target.position.z -= 0.8;
+                }
+            }
+    }
+    checkWater(){
+        this.limit(8, 32, -832, -1024);
+        this.limit(24, 40, -824, -1024);
+        this.limit(32, 48, -808, -1024);
+        this.limit(40, 56, -784, -1024);
+        this.limit(48, 64, -760, -1024);
+        this.limit(56, 72, -736, -1024);
+        this.limit(64, 232, -712, -736);
+        this.limit(72, 224, -704, -744);
+        this.limit(80, 216, -696, -1024);
+        this.limit(88, 200, -688, -1024);
+        this.limit(104, 184, -680, -1024);
+        this.limit(120, 152, -672, -1024);
+        this.limit(208, 224, -768, -1024);
+        this.limit(216, 232, -776, -1024);
+        this.limit(224, 240, -784, -1024);
+        this.limit(232, 256, -792, -1024);
+        this.limit(248, 272, -800, -1024);
+        this.limit(264, 296, -808, -1024);
+        this.limit(288, 320, -816, -1024);
+        this.limit(312, 356, -824, -1024);
+        this.limit(344, 392, -816, -1024);
+        this.limit(384, 424, -808, -1024);
+        this.limit(416, 432, -800, -1024);
+        this.limit(424, 440, -792, -1024);
+        this.limit(432, 448, -784, -1024);
+        this.limit(440, 448, -760, -1024);
+        this.limit(432, 440, -736, -768);
+        this.limit(424, 456, -680, -744);
+        this.limit(400, 424, -688, -736);
+        this.limit(384, 400, -704, -728);
+        this.limit(392, 408, -696, -712);
+        this.limit(448, 472, -672, -1024);
+        this.limit(464, 488, -664, -1024);
+        this.limit(480, 496, -656, -1024);
+        this.limit(488, 504, -648, -1024);
+        this.limit(496, 512, -640, -1024);
+        this.limit(504, 528, -632, -1024);
+        this.limit(520, 536, -624, -1024);
+        this.limit(528, 544, -608, -1024);
+        this.limit(536, 552, -576, -1024);
+        this.limit(544, 552, -544, -584);
+        this.limit(536, 552, -504, -552);
+        this.limit(528, 544, -496, -512);
+        this.limit(520, 536, -488, -504);
+        this.limit(504, 528, -480, -496);
+        this.limit(480, 512, -472, -488);
+        this.limit(464, 488, -464, -480);
+        this.limit(456, 472, -456, -472);
+        this.limit(448, 584, -336, -464);
+        this.limit(440, 616, -344, -440);
+        this.limit(432, 448, -368, -416);
+        this.limit(464, 544, -328, -344);
+        this.limit(608, 632, -352, -448);
+        this.limit(624, 648, -360, -448);
+        this.limit(640, 656, -368, -448);
+        this.limit(648, 664, -376, -448);
+        this.limit(656, 672, -384, -448);
+        this.limit(664, 680, -392, -448);
+        this.limit(672, 688, -408, -448);
+        this.limit(680, 792, -416, -448);
+        this.limit(784, 1024, -408, -448);
+        this.limit(808, 1024, -384, -448);
+        this.limit(816, 1024, -352, -448);
+        this.limit(824, 1024, -320, -360);
+        this.limit(816, 1024, -192, -328);
+        this.limit(808, 1024, -200, -296);
+        this.limit(800, 1024, -208, -288);
+        this.limit(792, 1024, -232, -288);
+        this.limit(784, 1024, -256, -264);
+        this.limit(824, 1024, -184, -256);
+        this.limit(840, 1024, -176, -256);
+        this.limit(856, 1024, -168, -256);
+        this.limit(872, 1024, -160, -256);
+        this.limit(904, 1024, -152, -256);
+        this.limit(960, 1024, -144, -256);
+        this.limit(992, 1024, -136, -256);
+        this.limit(1008, 1024, -128, -256);
+    }
     checkCollision(){
-        if(this._target.position.x < 97 && this._target.position.x > -161 && this._target.position.z < 425 && this._target.position.z >267 ){
-            if(this._target.position.x < 97){
-                this._target.position.x += 1;
-            }
-            else if(this._target.position.x > -161){
-                this._target.position.x -= 1;
-            }
-            else if(this._target.position.z < 425){
-                this._target.position.z += 1;
-            }
-            else if(this._target.position.z < 267){
-                this._target.position.z -= 1;
-            }
-        }
+        this.limit(-158, 94, 426, 262);
     }
-    water(xpos, zpos){
-            if(this._target.position.x > xpos && this._target.position.z < zpos){
-                if(this._target.position.x-8 < xpos){
-                    this._target.position.x -= 1;
-                }
-                if(this._target.position.z+8 > zpos){
-                    this._target.position.z += 1;
-                }
-            }
-        
-    }
-    checkOutWater(){
-        this.water(6,-830);
-        this.water(22,-822);
-        this.water(30,-806);
-        this.water(38,-782);
-        this.water(46,-758);
-        this.water(54,-734);
-        this.water(62,-710);
-        this.water(70,-702);
-        this.water(78,-694);
-        this.water(86,-686);
-        this.water(102,-678);
-        this.water(118,-670);
-    }
-    checkInWorld(){
+    checkWorld(){
         if(Math.pow(this._target.position.x, 2) + Math.pow(this._target.position.z, 2) + Math.pow(250,2) >= Math.pow(worldWidth/2, 2)){
             if(this._target.position.x < 0 && this._target.position.z < 0){
                 this._target.position.x += 1;
@@ -180,9 +237,9 @@ class BasicCharacterController {
         if (!this._stateMachine._currentState) {
             return;
         }
+        this.checkWater();
         this.checkCollision();
-        this.checkOutWater();
-        this.checkInWorld();
+        this.checkWorld();
         charPosX =  this._target.position.x;
         charPosY =  this._target.position.y;
         charPosZ =  this._target.position.z;

@@ -18,7 +18,7 @@ let camera, scene, renderer;
 let stats, pivot, dirLight;     // Untuk day/night
 let mixers, previousRAF;        // Animation update
 let controls, thirdPersonCamera;
-let world, timeStamp;   // Untuk Physics World
+let world, timeStamp, debugRenderer;   // Untuk Physics World
 var onRenderFcts= [];
 // Lebar sudut kamera
 const camAngle = 60;
@@ -268,7 +268,7 @@ function addObjects(){
         const building1 = gltf.scene;
         scene.add(building1);
         building1.position.set(-32,75,344);
-        let shapeBuild1 = new CANNON.Box(new CANNON.Vec3(127,75,79));
+        let shapeBuild1 = new CANNON.Box(new CANNON.Vec3(126,75,82));
         bodyBuild1 = new CANNON.Body({
             shape:shapeBuild1,
             mass:100,
