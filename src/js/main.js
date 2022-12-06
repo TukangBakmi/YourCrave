@@ -53,18 +53,6 @@ LoadingManager.onProgress = function(url, loaded, total){
 init();
 animate();
 
-//Add BackGround Sound
-let listener = new THREE.AudioListener();
-camera.add(listener);
-let backgroundSound = new THREE.Audio(listener);    
-let audioloader = new THREE.AudioLoader().load('./src/SoundAsset/BackGroundSong.mp3',
-(hasil)=>{
-    backgroundSound.setBuffer(hasil);
-    backgroundSound.play();
-    backgroundSound.setLoop(true);
-    backgroundSound.setVolume(0.5);
-});
-
 function init() {
 
     renderer = new module.WebGLRenderer({
@@ -104,6 +92,7 @@ function init() {
     timeStamp = 1.0/60.0;
 
     addLights();
+    addBackSound();
     addDNight();
     addPlane();
     LoadAnimatedModel();
@@ -188,6 +177,20 @@ function addLights(){
     pivot.add( dirLight );
 }
 
+function addBackSound(){
+    //Add BackGround Sound
+    let listener = new THREE.AudioListener();
+    camera.add(listener);
+    let backgroundSound = new THREE.Audio(listener);    
+    let audioloader = new THREE.AudioLoader().load('./src/SoundAsset/BackGroundSong.mp3',
+    (hasil)=>{
+        backgroundSound.setBuffer(hasil);
+        backgroundSound.play();
+        backgroundSound.setLoop(true);
+        backgroundSound.setVolume(0.5);
+    });
+}
+
 function addDNight(){
     // Sun angle untuk membedakan pagi, siang, sore, malam
     var sunAngle = -Math.PI;
@@ -253,6 +256,17 @@ function LoadAnimatedModel() {
     });
 }
 
+function addObject(url, x, y, z){
+    const assetLoader = new GLTFLoader(LoadingManager);
+    assetLoader.load('./src/img/objects/'+url, function(gltf){
+        gltf.scene.traverse( function( node ) {
+            if ( node.isMesh ) { node.castShadow = true; }
+        });
+        gltf.scene.position.set(x,y,z);
+        scene.add(gltf.scene);
+    });
+}
+
 function addObjects(){
 
     let box = new CANNON.Box(new CANNON.Vec3(2,4,2));
@@ -264,45 +278,7 @@ function addObjects(){
     charBody.position.set(0,40,576);
     world.addBody(charBody);
 
-    const assetLoader = new GLTFLoader(LoadingManager);
-    assetLoader.load('./src/img/objects/maple_tree (1).glb', function(gltf){
-        gltf.scene.traverse( function( node ) {
-            if ( node.isMesh ) { node.castShadow = true; }
-        });
-        const model = gltf.scene;
-        scene.add(model);
-        model.position.set(0,0,20);
-    });
-    assetLoader.load('./src/img/objects/building1.glb', function(gltf){
-        gltf.scene.traverse( function( node ) {
-            if ( node.isMesh ) { node.castShadow = true; }
-        });
-        const building1 = gltf.scene;
-        scene.add(building1);
-        building1.position.set(-32,75,344);
-        let shapeBuild1 = new CANNON.Box(new CANNON.Vec3(126,75,82));
-        bodyBuild1 = new CANNON.Body({
-            shape:shapeBuild1,
-            mass:100,
-            type: CANNON.Body.STATIC,
-            material: build1Material});
-        world.addBody(bodyBuild1);
-        bodyBuild1.position.copy(building1.position);
-    });
-    assetLoader.load('./src/img/objects/hospital.glb', function(gltf){
-        gltf.scene.traverse( function( node ) {
-            if ( node.isMesh ) { node.castShadow = true; }
-        });
-        const hospital = gltf.scene;
-        scene.add(hospital);
-        hospital.position.set(-708,80,-96);
-        let shapeHosp = new CANNON.Box(new CANNON.Vec3(47,80,82));
-        let bodyHosp = new CANNON.Body({
-            shape:shapeHosp, 
-            mass:100, 
-            type: CANNON.Body.STATIC,
-            material: hospMaterial});
-        world.addBody(bodyHosp);
-        bodyHosp.position.copy(hospital.position);
-    });
+    addObject('maple_tree (1).glb',0,0,20);
+    addObject('building1.glb',-32,74,344);
+    addObject('hospital.glb', -708,78,-96);
 }

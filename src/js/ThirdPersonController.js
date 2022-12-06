@@ -116,20 +116,75 @@ class BasicCharacterController {
     limit(left, right, bot, top){
             if(this._target.position.x > left-2 && this._target.position.x < right+2 && this._target.position.z < bot+2 && this._target.position.z > top-2){
                 if(this._target.position.x-8 < left){
-                    this._target.position.x -= 0.8;
+                    this._target.position.x -= 0.5;
+                    this._target.position.x -= 0.5;
+                    this._target.position.x -= 0.5;
                 }
                 if(this._target.position.x+8 > right){
-                    this._target.position.x += 0.8;
+                    this._target.position.x += 0.5;
+                    this._target.position.x += 0.5;
+                    this._target.position.x += 0.5;
                 }
                 if(this._target.position.z+8 > bot){
-                    this._target.position.z += 0.8;
+                    this._target.position.z += 0.5;
+                    this._target.position.z += 0.5;
+                    this._target.position.z += 0.5;
                 }
                 if(this._target.position.z-8 < top){
-                    this._target.position.z -= 0.8;
+                    this._target.position.z -= 0.5;
+                    this._target.position.z -= 0.5;
+                    this._target.position.z -= 0.5;
                 }
             }
     }
     checkWater(){
+        this.limit(-904, -856, -568, -1024);
+        this.limit(-904, -848, -576, -1024);
+        this.limit(-904, -832, -584, -1024);
+        this.limit(-904, -816, -592, -1024);
+        this.limit(-904, -808, -600, -1024);
+        this.limit(-904, -792, -608, -1024);
+        this.limit(-904, -768, -616, -1024);
+        this.limit(-776, -744, -608, -1024);
+        this.limit(-752, -568, -600, -1024);
+        this.limit(-736, -584, -592, -1024);
+        this.limit(-728, -600, -584, -1024);
+        this.limit(-712, -608, -576, -1024);
+        this.limit(-704, -624, -568, -1024);
+        this.limit(-680, -648, -560, -1024);
+        this.limit(-576, -560, -616, -1024);
+        this.limit(-576, -552, -624, -1024);
+        this.limit(-576, -544, -640, -1024);
+        this.limit(-576, -536, -672, -1024);
+        this.limit(-576, -528, -696, -1024);
+        this.limit(-576, -520, -712, -1024);
+        this.limit(-576, -512, -728, -1024);
+        this.limit(-576, -504, -736, -1024);
+        this.limit(-576, -496, -744, -1024);
+        this.limit(-576, -480, -752, -1024);
+        this.limit(-576, -472, -760, -1024);
+        this.limit(-576, -456, -768, -1024);
+        this.limit(-576, -440, -776, -1024);
+        this.limit(-576, -416, -784, -1024);
+        this.limit(-576, -384, -792, -1024);
+        this.limit(-392, -352, -800, -1024);
+        this.limit(-360, -144, -792, -1024);
+        this.limit(-344, -160, -784, -1024);
+        this.limit(-328, -168, -776, -1024);
+        this.limit(-320, -184, -768, -1024);
+        this.limit(-312, -192, -760, -1024);
+        this.limit(-312, -200, -752, -1024);
+        this.limit(-304, -200, -744, -1024);
+        this.limit(-288, -208, -736, -1024);
+        this.limit(-272, -208, -728, -1024);
+        this.limit(-264, -216, -720, -1024);
+        this.limit(-248, -224, -712, -1024);
+        this.limit(-192, -128, -800, -1024);
+        this.limit(-192, -112, -808, -1024);
+        this.limit(-192, -88, -816, -1024);
+        this.limit(-192, -64, -824, -1024);
+        this.limit(-192, -32, -832, -1024);
+        this.limit(-1024, 1024, -840, -1024);
         this.limit(8, 32, -832, -1024);
         this.limit(24, 40, -824, -1024);
         this.limit(32, 48, -808, -1024);
@@ -209,7 +264,8 @@ class BasicCharacterController {
         this.limit(1008, 1024, -128, -256);
     }
     checkCollision(){
-        this.limit(-158, 94, 426, 262);
+        this.limit(-158, 94, 426, 262);     //building1
+        this.limit(-768, -648, -8, -184);     //hospital
     }
     checkWorld(){
         if(Math.pow(this._target.position.x, 2) + Math.pow(this._target.position.z, 2) + Math.pow(250,2) >= Math.pow(worldWidth/2, 2)){
