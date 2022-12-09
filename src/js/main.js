@@ -18,7 +18,7 @@ let camera, scene, renderer;
 let stats, pivot, dirLight;     // Untuk day/night
 let mixers, previousRAF;        // Animation update
 let controls, thirdPersonCamera;
-let world, timeStamp, debugRenderer;   // Untuk Physics World
+let world, timeStamp, charBody, debugRenderer;   // Untuk Physics World
 var onRenderFcts= [];
 // Lebar sudut kamera
 const camAngle = 60;
@@ -27,26 +27,25 @@ const hemiIntensity = 0.2;
 const dirIntensity = 1;
 // Atribut world
 export const worldWidth = 2048; // Lebar world
-const dayTime = 6000;   // Lama waktu
-export let isTouching = false;
-// Material
-let charMaterial = new CANNON.Material();
-let build1Material = new CANNON.Material();
-let hospMaterial = new CANNON.Material();
-// Body
-let charBody;
-let bodyBuild1;
+const dayTime = 600   // Lama waktu
+// Sound
+let backgroundSound, listener;
+let volume = 1;
+export let soundEffectWalk, soundEffectRun, soundEffectJump;
+let walkSound = false;
+let runSound = false;
+let jumpSound = false;
 
 
 // Untuk loading screen
 export const LoadingManager = new THREE.LoadingManager();
-const progressBar = document.querySelector('.ring');
-const progressBarContainer = document.querySelector('.progress-bar-container');
+const loadingScreen = document.getElementById('loading-screen');
 // Jika sudah selesai di-load, display class ring-nya diubah jadi none
 LoadingManager.onProgress = function(url, loaded, total){
     if(loaded == total){
-        progressBar.style.display = 'none';
-        progressBarContainer.style.display = 'none';
+        loadingScreen.style.display = 'none';
+		// optional: remove loader from DOM via event listener
+		loadingScreen.addEventListener( 'transitionend', function(event){event.target.remove();} );
     }
 }
 
@@ -159,11 +158,11 @@ function addLights(){
     dirLight.castShadow = true;
     dirLight.shadow.bias = -0.001;
     // Jarak kamera agar bisa menghasilkan bayangan
-    dirLight.shadow.camera.near = 0.5;
+    dirLight.shadow.camera.near = 0;
     dirLight.shadow.camera.far = worldWidth;
     // Mempertajam bayangan
-    dirLight.shadow.mapSize.width = 6 * worldWidth;
-    dirLight.shadow.mapSize.height = 6 * worldWidth;
+    dirLight.shadow.mapSize.width = 4 * worldWidth;
+    dirLight.shadow.mapSize.height = 4 * worldWidth;
     // Offset bayangannya
     dirLight.shadow.camera.left = worldWidth/2;
     dirLight.shadow.camera.right = -worldWidth/2;
@@ -179,15 +178,36 @@ function addLights(){
 
 function addBackSound(){
     //Add BackGround Sound
-    let listener = new THREE.AudioListener();
+    listener = new THREE.AudioListener();
     camera.add(listener);
-    let backgroundSound = new THREE.Audio(listener);    
-    let audioloader = new THREE.AudioLoader().load('./src/SoundAsset/BackGroundSong.mp3',
+    backgroundSound = new THREE.Audio(listener);    
+    let main = new THREE.AudioLoader().load('./src/SoundAsset/backsound-main.mp3',
     (hasil)=>{
         backgroundSound.setBuffer(hasil);
         backgroundSound.play();
         backgroundSound.setLoop(true);
-        backgroundSound.setVolume(0.5);
+        backgroundSound.setVolume(volume);
+    });
+    soundEffectWalk = new THREE.Audio(listener);    
+    let walk = new THREE.AudioLoader().load('./src/SoundAsset/walk.mp3',
+    (hasil)=>{
+        soundEffectWalk.setBuffer(hasil);
+        soundEffectWalk.setLoop(true);
+        soundEffectWalk.setVolume(volume*2);
+    });
+    soundEffectRun = new THREE.Audio(listener);    
+    let run = new THREE.AudioLoader().load('./src/SoundAsset/run.mp3',
+    (hasil)=>{
+        soundEffectRun.setBuffer(hasil);
+        soundEffectRun.setLoop(true);
+        soundEffectRun.setVolume(volume*2);
+    });
+    soundEffectJump = new THREE.Audio(listener);    
+    let jump = new THREE.AudioLoader().load('./src/SoundAsset/jump.mp3',
+    (hasil)=>{
+        soundEffectJump.setBuffer(hasil);
+        soundEffectJump.setLoop(true);
+        soundEffectJump.setVolume(volume/2);
     });
 }
 
@@ -274,7 +294,7 @@ function addObjects(){
         shape:box, 
         mass:60, 
         type: CANNON.Body.STATIC,
-        material:charMaterial});
+        material: new CANNON.Material()});
     charBody.position.set(0,40,576);
     world.addBody(charBody);
 
@@ -282,3 +302,24 @@ function addObjects(){
     addObject('building1.glb',-32,74,344);
     addObject('hospital.glb', -708,78,-96);
 }
+
+document.getElementById("mute").addEventListener("click", function(){
+    document.getElementById("mute").classList.add("selected");
+    document.getElementById("unmute").classList.remove("selected");
+    backgroundSound.setVolume(0);
+    soundEffectWalk.setVolume(0);
+    soundEffectRun.setVolume(0);
+    soundEffectJump.setVolume(0);
+});
+document.getElementById("unmute").addEventListener("click", function(){
+    document.getElementById("unmute").classList.add("selected");
+    document.getElementById("mute").classList.remove("selected");
+    backgroundSound.setVolume(volume);
+    soundEffectWalk.setVolume(volume*2);
+    soundEffectRun.setVolume(volume*2);
+    soundEffectJump.setVolume(volume/2);
+});
+document.getElementById("backMenu").addEventListener("click", function(){
+    window.location.href = "./index.html";
+    backgroundSound.stop();
+});

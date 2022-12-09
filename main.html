@@ -5,6 +5,9 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link rel="icon" href="/src/img/_icon.png">
+        <!-- bootstrap5 -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <style>
             * {
                 padding: 0;
@@ -14,7 +17,7 @@
             body {
                 font-size:0;
             }
-            .ring {
+            #loader-txt {
                 position:absolute;
                 top:50%;
                 left:50%;
@@ -22,7 +25,6 @@
                 width:150px;
                 height:150px;
                 background-color: rgba(0, 0, 0, 0.8);
-                border:3px solid #3c3c3c;
                 border-radius:50%;
                 text-align:center;
                 line-height:150px;
@@ -31,77 +33,125 @@
                 color:#00ff4c;
                 letter-spacing:4px;
                 text-transform:uppercase;
-                text-shadow:0 0 10px #00ff4c;
+                text-shadow:0 0 20px #ffffff;
                 box-shadow:0 0 20px rgba(0,0,0,.5);
             }
-            .ring:before {
-                content:'';
-                position:absolute;
-                top:-3px;
-                left:-3px;
-                width:100%;
-                height:100%;
-                border:3px solid transparent;
-                border-top:3px solid #00ff4c;
-                border-right:3px solid #00ff4c;
-                border-radius:50%;
-                animation:animateC 2s linear infinite;
-            }
-            span {
-                display:block;
-                position:absolute;
-                top:calc(50% - 2px);
-                left:50%;
-                width:50%;
-                height:4px;
-                background:transparent;
-                transform-origin:left;
-                animation:animate 2s linear infinite;
-            }
-            span:before {
-                content:'';
-                position:absolute;
-                width:16px;
-                height:16px;
-                border-radius:50%;
-                background:#00ff4c;
-                top:-6px;
-                right:-8px;
-                box-shadow:0 0 20px #00ff4c;
-            }
-            @keyframes animateC {
-                0% {
-                    transform:rotate(0deg);
-                }
-                100% {
-                    transform:rotate(360deg);
-                }
-            }
-            @keyframes animate {
-                0% {
-                    transform:rotate(45deg);
-                }
-                100% {
-                    transform:rotate(405deg);
-                }
-            }
-            .progress-bar-container {
+            #loading-screen {
                 position: absolute;
-                left: 50%;
-                top: 50%;
-                transform: translate(-50%, -50%);
+                z-index: 2;
+                top: 0;
+                left: 0;
                 width: 100%;
                 height: 100%;
-                background-color: rgba(0, 0, 0, 1);
+                background-color: #000000;
+                opacity: 1;
+                transition: 1s opacity;
+            }
+            #loading-screen .fade-out {
+                display: none;
+            }
+            #loader {
+                display: block;
+                position: relative;
+                left: 50%;
+                top: 50%;
+                width: 200px;
+                height: 200px;
+                margin: -100px 0 0 -100px;
+                border-radius: 50%;
+                border: 3px solid transparent;
+                border-top-color: #008035;
+                -webkit-animation: spin 2s linear infinite;
+                animation: spin 2s linear infinite;
+            }
+            #loader:before {
+                content: "";
+                position: absolute;
+                top: 5px;
+                left: 5px;
+                right: 5px;
+                bottom: 5px;
+                border-radius: 50%;
+                border: 3px solid transparent;
+                border-top-color: #33b301;
+                -webkit-animation: spin 3s linear infinite;
+                animation: spin 3s linear infinite;
+            }
+            #loader:after {
+                content: "";
+                position: absolute;
+                top: 15px;
+                left: 15px;
+                right: 15px;
+                bottom: 15px;
+                border-radius: 50%;
+                border: 3px solid transparent;
+                border-top-color: #00ff15;
+                -webkit-animation: spin 1.5s linear infinite;
+                animation: spin 1.5s linear infinite;
+            }
+            @-webkit-keyframes spin {
+                0%   {
+                    -webkit-transform: rotate(0deg);
+                    -ms-transform: rotate(0deg);
+                    transform: rotate(0deg);
+                }
+                100% {
+                    -webkit-transform: rotate(360deg);
+                    -ms-transform: rotate(360deg);
+                    transform: rotate(360deg);
+                }
+            }
+            @keyframes spin {
+                0%   {
+                    -webkit-transform: rotate(0deg);
+                    -ms-transform: rotate(0deg);
+                    transform: rotate(0deg);
+                }
+                100% {
+                    -webkit-transform: rotate(360deg);
+                    -ms-transform: rotate(360deg);
+                    transform: rotate(360deg);
+                }
+            }
+            .card{
+                position: absolute;
+                top: 2%;
+                right: 2%;
+                background-color: rgba(0, 0, 0, 0.3);
+                width: 200px !important;
+            }
+            .card .card-item{
+                color: white;
+                text-align: center;
+            }
+            .card .vol{
+                justify-content: center;
+            }
+            .card .vol .selected{
+                background-color: #004094;
+            }
+            .btn-dark{
+                background-color: rgba(0, 0, 0, 0.0);
             }
         </style>
 	</head>
 	<body>
 		<canvas id="bg"></canvas>
-        <div class="progress-bar-container"></div>
-        <div class="ring">Loading
-            <span></span>
+        <div class="card border border-2 rounded-2 p-2 w-5" style="width: 18rem;">
+            <h6 class="card-item">W A S D - walk</h6>
+            <h6 class="card-item">Hold Shift - run</h6>
+            <h6 class="card-item">Space Bar - Jump</h6>
+            <div class="vol row mb-1">
+                <button id="unmute" class="btn btn-dark col-3 mx-2 selected"><img src="./src/img/button_unmute.png" class="w-100"></button>
+                <button id="mute" class="btn btn-dark col-3 mx-2"><img src="./src/img/button_mute.png" class="w-100"></button>
+            </div>
+            <button id="backMenu" class="btn btn-dark">Back To Menu</button>
         </div>
+        <section id="loading-screen">
+            <div id="loader-txt">Loading</div>
+            <div id="loader"></div>
+        </section>
         <!-- Library three js untuk apply physics -->
         <script src="node_modules/three/build/three.js"></script>
         <!-- Library canon js untuk apply physics -->

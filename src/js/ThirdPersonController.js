@@ -1,7 +1,8 @@
 // import
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
 import {FBXLoader} from 'https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/FBXLoader.js';
-import {LoadingManager, worldWidth} from './main';
+import {LoadingManager, worldWidth,
+    soundEffectJump,soundEffectRun,soundEffectWalk} from './main';
 
 export let charPosX, charPosY, charPosZ;
 // Kecepatan player
@@ -424,7 +425,7 @@ class BasicCharacterControllerInput {
     _onKeyUp(event) {
         // Jika key yang didefinisikan dilepas, mengubah nilainya menjadi false
         switch(event.keyCode) {
-            // Angka ini adalah keycode three js, bisa dicek dihttps://www.toptal.com/developers/keycode
+            // Angka ini adalah keycode three js, bisa dicek di https://www.toptal.com/developers/keycode
             case 87: // w
                 this._keys.forward = false;
                 break;
@@ -535,6 +536,7 @@ class JumpState extends State {
             curAction.setLoop(THREE.LoopOnce, 1);
             curAction.clampWhenFinished = true;
             curAction.crossFadeFrom(prevAction, 0.2, true);
+            soundEffectJump.play();
             curAction.play();
         } else {
             curAction.play();
@@ -542,6 +544,7 @@ class JumpState extends State {
     }
     // Jika sudah selesai, kembali ke action run
     _Finished() {
+        soundEffectJump.stop();
         this._Cleanup();
         this._parent.SetState('run');
     }
@@ -573,6 +576,7 @@ class WalkState extends State {
         // Membuat animasi walk
         const curAction = this._parent._proxy._animations['walk'].action;
         if (prevState) {
+            soundEffectWalk.play();
             const prevAction = this._parent._proxy._animations[prevState.Name].action;
             curAction.enabled = true;
             if (prevState.Name == 'run') {
@@ -591,6 +595,7 @@ class WalkState extends State {
     }
 
     Exit() {
+        soundEffectWalk.stop();
     }
     // Update stat
     Update(timeElapsed, input) {
@@ -625,6 +630,7 @@ class RunState extends State {
         // Membuat animasi run
         const curAction = this._parent._proxy._animations['run'].action;
         if (prevState) {
+            soundEffectRun.play();
             const prevAction = this._parent._proxy._animations[prevState.Name].action;
             curAction.enabled = true;
             if (prevState.Name == 'walk') {
@@ -643,6 +649,7 @@ class RunState extends State {
     }
 
     Exit() {
+        soundEffectRun.stop();
     }
     // Update stat
     Update(timeElapsed, input) {
