@@ -27,7 +27,7 @@ const hemiIntensity = 0.2;
 const dirIntensity = 1;
 // Atribut world
 export const worldWidth = 2048; // Lebar world
-const dayTime = 600   // Lama waktu
+const dayTime = 6000   // Lama waktu
 // Sound
 let backgroundSound, listener;
 let volume = 1;
