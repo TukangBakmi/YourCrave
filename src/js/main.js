@@ -32,9 +32,6 @@ const dayTime = 6000   // Lama waktu
 let backgroundSound, listener;
 let volume = 1;
 export let soundEffectWalk, soundEffectRun, soundEffectJump;
-let walkSound = false;
-let runSound = false;
-let jumpSound = false;
 
 
 // Untuk loading screen
