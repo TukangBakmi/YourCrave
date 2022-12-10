@@ -74,6 +74,9 @@ function init() {
     let main = new THREE.AudioLoader().load('./src/SoundAsset/backsound-index.mp3',
     (hasil)=>{
         backgroundSound.setBuffer(hasil);
+        if(!backgroundSound.isPlaying){
+            backgroundSound.play();
+        }
         backgroundSound.setLoop(true);
         backgroundSound.setVolume(1);
     });

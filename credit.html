@@ -16,13 +16,46 @@
                 border: 0;
             }
             body {
-                font-size:0;
+                font-size: 0;
                 font-family: 'Brush Script MT', cursive;
+            }
+            .buttons{
+                justify-content: center;
+                position: absolute;
+                top: 2%;
+                right: 1%;
+            }
+            .vol{
+                justify-content: center;
+            }
+            .vol .selected{
+                background-color: #004094;
+            }
+            #cover{
+                position: absolute;
+                display: none;
+                background-color: black;
+            }
+            .btn-dark{
+                background-color: rgba(0, 0, 0, 0.0);
+            }
+            #backMenu{
+                justify-content: center;
+                width: 70%;
+                margin: 0 15%;
             }
         </style>
     </head>
 	<body>
         <canvas id="bg"></canvas>
+        <div class="buttons">
+            <div class="vol row mb-2">
+                <button id="unmute" class="btn btn-dark col-3 mx-2 selected"><img src="./src/img/button_unmute.png" class="w-100"></button>
+                <button id="mute" class="btn btn-dark col-3 mx-2"><img src="./src/img/button_mute.png" class="w-100"></button>    
+            </div>
+            <button id="backMenu" class="btn btn-dark">Back To Menu</button>
+        </div>
+        <div id="cover" class="w-100 h-100"></div>
 		<script type="module" src="./src/js/credit.js"></script>
 	</body>
 </html>
