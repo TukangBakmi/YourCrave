@@ -155,4 +155,4 @@ function Skydom(){
 	}
 }
 
-export { SunSphere, StarField, SunLight, Skydom };
+export { SunSphere, StarField, SunLight, Skydom, currentPhase };

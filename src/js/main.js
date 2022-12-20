@@ -4,7 +4,8 @@ import {
     SunSphere,
     SunLight,
     Skydom,
-    StarField
+    StarField,
+    currentPhase
 } from './threex.daynight.js';
 import {
     BasicCharacterController,
@@ -15,7 +16,7 @@ import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { NearestFilter } from 'three';
 
 let camera, scene, renderer;
-let stats, pivot, dirLight;     // Untuk day/night
+let stats, pivot, dirLight, hemiLight, spotLight, sunAngle;     // Untuk day/night
 let mixers, previousRAF;        // Animation update
 let controls, thirdPersonCamera;
 let world, timeStamp, charBody, debugRenderer;   // Untuk Physics World
@@ -23,11 +24,12 @@ var onRenderFcts= [];
 // Lebar sudut kamera
 const camAngle = 60;
 // Intensitas cahaya
-const hemiIntensity = 0.2;
+const hemiIntensity = 0.5;
 const dirIntensity = 1;
 // Atribut world
 export const worldWidth = 2048; // Lebar world
 const dayTime = 6000   // Lama waktu
+const objectsToUpdate = []
 // Sound
 let backgroundSound, listener;
 let volume = 1;
@@ -102,11 +104,324 @@ function init() {
 function animate() {
     // Update physics
     world.step(timeStamp);
-    //updateCharBody();
     //debugRenderer.update();
     charBody.position.x = (charPosX);
     charBody.position.y = (charPosY+4);
     charBody.position.z = (charPosZ);
+    // Moving object
+    for(const object of objectsToUpdate){
+        object.carAndBody.car.position.copy(object.carAndBody.body.position);
+        object.carAndBody.car.quaternion.copy(object.carAndBody.body.quaternion);
+        object.carAndBody.body.position.y = object.carAndBody.height;
+        if(object.carAndBody.face == "up"){
+            object.carAndBody.light.position.set(object.carAndBody.body.position.x, 8, object.carAndBody.body.position.z - object.carAndBody.width);
+            object.carAndBody.light.target.position.set(object.carAndBody.body.position.x,8,-1024);
+            object.carAndBody.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), -Math.PI*0/2);
+            if(
+                (object.carAndBody.body.position.z - object.carAndBody.width - 2 < charBody.position.z + 2) &&
+                (object.carAndBody.body.position.z - object.carAndBody.width - 2 > charBody.position.z - 2) &&
+                (object.carAndBody.body.position.x + object.carAndBody.length > charBody.position.x - 2) &&
+                (object.carAndBody.body.position.x - object.carAndBody.length < charBody.position.x + 2)){
+            }else{
+                object.carAndBody.body.position.z -= object.carAndBody.speed;
+            }
+            
+            if(object.carAndBody.line == 1){
+                object.carAndBody.body.position.x = -792;
+                if(object.carAndBody.body.position.z <= -344){
+                    object.carAndBody.face = "right";
+                    object.carAndBody.line = 2;
+                }
+            }
+            if(object.carAndBody.line == 3){
+                object.carAndBody.body.position.x = -664;
+                if(object.carAndBody.body.position.z <= -408){
+                    object.carAndBody.face = "right";
+                    object.carAndBody.line = 4;
+                }
+            }
+            if(object.carAndBody.line == 5){
+                object.carAndBody.body.position.x = -408;
+                if(object.carAndBody.body.position.z <= -472){
+                    object.carAndBody.face = "right";
+                    object.carAndBody.line = 6;
+                }
+            }
+            if(object.carAndBody.line == 7){
+                object.carAndBody.body.position.x = 296;
+                if(object.carAndBody.body.position.z <= -488){
+                    object.carAndBody.face = "left";
+                    object.carAndBody.line = 6;
+                }
+            }
+            if(object.carAndBody.line == 9){
+                object.carAndBody.body.position.x = 680;
+                if(object.carAndBody.body.position.z <= -168){
+                    object.carAndBody.face = "left";
+                    object.carAndBody.line = 8;
+                }
+            }
+            if(object.carAndBody.line == 11){
+                object.carAndBody.body.position.x = 872;
+                if(object.carAndBody.body.position.z <= -40){
+                    object.carAndBody.face = "left";
+                    object.carAndBody.line = 10;
+                }
+            }
+            if(object.carAndBody.line == 13){
+                object.carAndBody.body.position.x = 744;
+                if(object.carAndBody.body.position.z <= 296){
+                    object.carAndBody.face = "right";
+                    object.carAndBody.line = 12;
+                }
+            }
+            if(object.carAndBody.line == 15){
+                object.carAndBody.body.position.x = -216;
+                if(object.carAndBody.body.position.z <= 408){
+                    object.carAndBody.face = "left";
+                    object.carAndBody.line = 16;
+                }
+            }
+        }
+
+        if(object.carAndBody.face == "right"){
+            object.carAndBody.light.position.set(object.carAndBody.body.position.x + object.carAndBody.width, 8, object.carAndBody.body.position.z);
+            object.carAndBody.light.target.position.set(1024,8,object.carAndBody.body.position.z);
+            object.carAndBody.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), -Math.PI*1/2);
+            if(
+                (object.carAndBody.body.position.x + object.carAndBody.width + 2 < charBody.position.x + 2) &&
+                (object.carAndBody.body.position.x + object.carAndBody.width + 2 > charBody.position.x - 2) &&
+                (object.carAndBody.body.position.z + object.carAndBody.length > charBody.position.z - 2) &&
+                (object.carAndBody.body.position.z - object.carAndBody.length < charBody.position.z + 2)){
+            }else{
+                object.carAndBody.body.position.x += object.carAndBody.speed;
+            }
+
+            if(object.carAndBody.line == 2){
+                object.carAndBody.body.position.z = -344;
+                if(object.carAndBody.body.position.x >= -664){
+                    object.carAndBody.face = "up";
+                    object.carAndBody.line = 3;
+                }
+            }
+            if(object.carAndBody.line == 4){
+                object.carAndBody.body.position.z = -408;
+                if(object.carAndBody.body.position.x >= -408){
+                    object.carAndBody.face = "up";
+                    object.carAndBody.line = 5;
+                }
+            }
+            if(object.carAndBody.line == 6){
+                object.carAndBody.body.position.z = -472;
+                if(object.carAndBody.body.position.x >= 280){
+                    object.carAndBody.face = "down";
+                    object.carAndBody.line = 7;
+                }
+            }
+            if(object.carAndBody.line == 8){
+                object.carAndBody.body.position.z = -152;
+                if(object.carAndBody.body.position.x >= 664){
+                    object.carAndBody.face = "down";
+                    object.carAndBody.line = 9;
+                }
+            }
+            if(object.carAndBody.line == 10){
+                object.carAndBody.body.position.z = -24;
+                if(object.carAndBody.body.position.x >= 856){
+                    object.carAndBody.face = "down";
+                    object.carAndBody.line = 11;
+                }
+            }
+            if(object.carAndBody.line == 12){
+                object.carAndBody.body.position.z = 296;
+                if(object.carAndBody.body.position.x >= 872){
+                    object.carAndBody.face = "up";
+                    object.carAndBody.line = 11;
+                }
+            }
+            if(object.carAndBody.line == 14){
+                object.carAndBody.body.position.z = 552;
+                if(object.carAndBody.body.position.x >= 744){
+                    object.carAndBody.face = "up";
+                    object.carAndBody.line = 13;
+                }
+            }
+            if(object.carAndBody.line == 16){
+                object.carAndBody.body.position.z = 424;
+                if(object.carAndBody.body.position.x >= 232){
+                    object.carAndBody.face = "down";
+                    object.carAndBody.line = 15;
+                }
+            }
+        }
+        if(object.carAndBody.face == "down"){
+            object.carAndBody.light.position.set(object.carAndBody.body.position.x, 8, object.carAndBody.body.position.z + object.carAndBody.width);
+            object.carAndBody.light.target.position.set(object.carAndBody.body.position.x,8,1024);
+            object.carAndBody.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), -Math.PI*2/2);
+            if(
+                (object.carAndBody.body.position.z + object.carAndBody.width + 2 < charBody.position.z + 2) &&
+                (object.carAndBody.body.position.z + object.carAndBody.width + 2 > charBody.position.z - 2) &&
+                (object.carAndBody.body.position.x + object.carAndBody.length > charBody.position.x - 2) &&
+                (object.carAndBody.body.position.x - object.carAndBody.length < charBody.position.x + 2)){
+            }else{
+                object.carAndBody.body.position.z += object.carAndBody.speed;
+            }
+
+            if(object.carAndBody.line == 1){
+                object.carAndBody.body.position.x = -808;
+                if(object.carAndBody.body.position.z >= 424){
+                    object.carAndBody.face = "right";
+                    object.carAndBody.line = 16;
+                }
+            }
+            if(object.carAndBody.line == 3){
+                object.carAndBody.body.position.x = -680;
+                if(object.carAndBody.body.position.z >= -360){
+                    object.carAndBody.face = "left";
+                    object.carAndBody.line = 2;
+                }
+            }
+            if(object.carAndBody.line == 5){
+                object.carAndBody.body.position.x = -424;
+                if(object.carAndBody.body.position.z >= -424){
+                    object.carAndBody.face = "left";
+                    object.carAndBody.line = 4;
+                }
+            }
+            if(object.carAndBody.line == 7){
+                object.carAndBody.body.position.x = 280;
+                if(object.carAndBody.body.position.z >= -152){
+                    object.carAndBody.face = "right";
+                    object.carAndBody.line = 8;
+                }
+            }
+            if(object.carAndBody.line == 9){
+                object.carAndBody.body.position.x = 664;
+                if(object.carAndBody.body.position.z >= -24){
+                    object.carAndBody.face = "right";
+                    object.carAndBody.line = 10;
+                }
+            }
+            if(object.carAndBody.line == 11){
+                object.carAndBody.body.position.x = 856;
+                if(object.carAndBody.body.position.z >= 280){
+                    object.carAndBody.face = "left";
+                    object.carAndBody.line = 12;
+                }
+            }
+            if(object.carAndBody.line == 13){
+                object.carAndBody.body.position.x = 728;
+                if(object.carAndBody.body.position.z >= 536){
+                    object.carAndBody.face = "left";
+                    object.carAndBody.line = 14;
+                }
+            }
+            if(object.carAndBody.line == 15){
+                object.carAndBody.body.position.x = 232;
+                if(object.carAndBody.body.position.z >= 552){
+                    object.carAndBody.face = "right";
+                    object.carAndBody.line = 14;
+                }
+            }
+        }
+        if(object.carAndBody.face == "left"){
+            object.carAndBody.light.position.set(object.carAndBody.body.position.x - object.carAndBody.width, 8, object.carAndBody.body.position.z);
+            object.carAndBody.light.target.position.set(-1024,8,object.carAndBody.body.position.z);
+            object.carAndBody.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), -Math.PI*3/2);
+            if(
+                (object.carAndBody.body.position.x - object.carAndBody.width - 2 < charBody.position.x + 2) &&
+                (object.carAndBody.body.position.x - object.carAndBody.width - 2 > charBody.position.x - 2) &&
+                (object.carAndBody.body.position.z + object.carAndBody.length > charBody.position.z - 2) &&
+                (object.carAndBody.body.position.z - object.carAndBody.length < charBody.position.z + 2)){
+            }else{
+                object.carAndBody.body.position.x -= object.carAndBody.speed;
+            }
+
+            if(object.carAndBody.line == 2){
+                object.carAndBody.body.position.z = -360;
+                if(object.carAndBody.body.position.x <= -808){
+                    object.carAndBody.face = "down";
+                    object.carAndBody.line = 1;
+                }
+            }
+            if(object.carAndBody.line == 4){
+                object.carAndBody.body.position.z = -424;
+                if(object.carAndBody.body.position.x <= -680){
+                    object.carAndBody.face = "down";
+                    object.carAndBody.line = 3;
+                }
+            }
+            if(object.carAndBody.line == 6){
+                object.carAndBody.body.position.z = -488;
+                if(object.carAndBody.body.position.x <= -424){
+                    object.carAndBody.face = "down";
+                    object.carAndBody.line = 5;
+                }
+            }
+            if(object.carAndBody.line == 8){
+                object.carAndBody.body.position.z = -168;
+                if(object.carAndBody.body.position.x <= 296){
+                    object.carAndBody.face = "up";
+                    object.carAndBody.line = 7;
+                }
+            }
+            if(object.carAndBody.line == 10){
+                object.carAndBody.body.position.z = -40;
+                if(object.carAndBody.body.position.x <= 680){
+                    object.carAndBody.face = "up";
+                    object.carAndBody.line = 9;
+                }
+            }
+            if(object.carAndBody.line == 12){
+                object.carAndBody.body.position.z = 280;
+                if(object.carAndBody.body.position.x <= 728){
+                    object.carAndBody.face = "down";
+                    object.carAndBody.line = 13;
+                }
+            }
+            if(object.carAndBody.line == 14){
+                object.carAndBody.body.position.z = 536;
+                if(object.carAndBody.body.position.x <= -216){
+                    object.carAndBody.face = "up";
+                    object.carAndBody.line = 15;
+                }
+            }
+            if(object.carAndBody.line == 16){
+                object.carAndBody.body.position.z = 408;
+                if(object.carAndBody.body.position.x <= -792){
+                    object.carAndBody.face = "up";
+                    object.carAndBody.line = 1;
+                }
+            }
+        }
+
+    }
+
+    var phase	= currentPhase(sunAngle)
+    if( phase === 'day' ){
+        if(hemiLight.intensity < 0.5){
+            hemiLight.intensity += 0.001;
+        }
+        if(dirLight.intensity < 1){
+            dirLight.intensity += 0.001;
+        }
+    }else if( phase === 'twilight' ){
+        if(hemiLight.intensity > 0.2){
+            hemiLight.intensity -= 0.001;
+        }
+        if(dirLight.intensity > 0.2){
+            dirLight.intensity -= 0.002;
+        }
+    } else {
+        if(hemiLight.intensity > 0.05){
+            hemiLight.intensity -= 0.001;
+        }
+        if(dirLight.intensity > 0){
+            dirLight.intensity -= 0.001;
+        }else{
+            dirLight.intensity = 0;
+        }
+    }
 
     renderer.render(scene, camera);
     stats.update();     //Update FPS
@@ -145,7 +460,7 @@ function Step(timeElapsed) {
 
 function addLights(){
     // Menggunakan jenis lighting "Hemisphere Light"
-    var hemiLight = new THREE.HemisphereLight(0XCFF7FF, 0xFFFFFF, hemiIntensity);
+    hemiLight = new THREE.HemisphereLight(0XCFF7FF, 0xFFFFFF, hemiIntensity);
     hemiLight.position.set(0, worldWidth/2, 0);
     scene.add(hemiLight);
     // Menggunakan jenis lighting "Directional Light"
@@ -158,8 +473,8 @@ function addLights(){
     dirLight.shadow.camera.near = 0;
     dirLight.shadow.camera.far = worldWidth;
     // Mempertajam bayangan
-    dirLight.shadow.mapSize.width = 4 * worldWidth;
-    dirLight.shadow.mapSize.height = 4 * worldWidth;
+    dirLight.shadow.mapSize.width = 3 * worldWidth;
+    dirLight.shadow.mapSize.height = 3 * worldWidth;
     // Offset bayangannya
     dirLight.shadow.camera.left = worldWidth/2;
     dirLight.shadow.camera.right = -worldWidth/2;
@@ -210,7 +525,7 @@ function addBackSound(){
 
 function addDNight(){
     // Sun angle untuk membedakan pagi, siang, sore, malam
-    var sunAngle = -Math.PI;
+    sunAngle = -Math.PI;
     onRenderFcts.push(function(delta, now){
         sunAngle	+= Math.PI*2/dayTime ;
     })
@@ -284,6 +599,83 @@ function addObject(url, x, y, z){
     });
 }
 
+function addMovingObject(url, length, height, width,face,speed,line,x,z){
+    const assetLoader = new GLTFLoader(LoadingManager);
+    assetLoader.load('./src/img/objects/'+url, (gltf) =>{
+        const meshCar = gltf.scene;
+        meshCar.traverse( function( node ) {
+            if ( node.isMesh ) { node.castShadow = true; }
+        });
+        scene.add(meshCar);
+
+        const light = new THREE.SpotLight(0xffffff,0.5,192,0.5);
+        scene.add(light);
+        scene.add(light.target);
+
+        // Cannon.js bodyconst
+        let shape = new CANNON.Box(new CANNON.Vec3(length,height,width));
+        const body = new CANNON.Body({
+            shape: shape,
+            mass: 1,
+            material: new CANNON.Material(),
+            position: new CANNON.Vec3(x, height, z)
+        })
+        world.addBody(body)
+        // Save in objects to update
+        objectsToUpdate.push({
+            carAndBody:{
+                car: meshCar,
+                body: body,
+                light: light,
+                length: length,
+                width: width,
+                height: height,
+                face: face,
+                speed: speed,
+                line: line
+            }
+        })
+    })
+}
+
+function addStreetLights(x, height, z, face){
+    const assetLoader = new GLTFLoader(LoadingManager);
+    assetLoader.load('./src/img/objects/streetLight.glb', function(gltf){
+        gltf.scene.traverse( function( node ) {
+            if ( node.isMesh ) { node.castShadow = true; }
+        });
+        gltf.scene.position.set(x,height,z);
+        scene.add(gltf.scene);
+        spotLight = new THREE.SpotLight(0xffffff,0.4,128,1.3);
+        spotLight.castShadow = true;
+        spotLight.shadow.mapSize.width = 256;
+        spotLight.shadow.mapSize.height = 256;
+        
+        if(face == 'left'){
+            spotLight.position.set(x-8,2*height-1,z);
+            spotLight.target.position.set(x-8,0*height,z);
+            gltf.scene.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), -Math.PI*2/2);
+        }
+        if(face == 'right'){
+            spotLight.position.set(x+8,2*height-1,z);
+            spotLight.target.position.set(x+8,0*height,z);
+            gltf.scene.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), -Math.PI*0/2);
+        }
+        if(face == 'up'){
+            spotLight.position.set(x,2*height-1,z-8);
+            spotLight.target.position.set(x,0*height,z-8);
+            gltf.scene.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), -Math.PI*3/2);
+        }
+        if(face == 'down'){
+            spotLight.position.set(x,2*height-1,z+8);
+            spotLight.target.position.set(x-8,0*height,z+8);
+            gltf.scene.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), -Math.PI*1/2);
+        }
+        scene.add(spotLight);
+        scene.add(spotLight.target);
+    });
+}
+
 function addObjects(){
 
     let box = new CANNON.Box(new CANNON.Vec3(2,4,2));
@@ -298,6 +690,30 @@ function addObjects(){
     addObject('maple_tree (1).glb',0,0,20);
     addObject('building1.glb',-32,74,344);
     addObject('hospital.glb', -708,78,-96);
+    addMovingObject('carOrange.glb',6,4,8,'down',1.5,1,-808,0);
+    addMovingObject('carBlue.glb',6,4,8,'left',1.5,8,384,-168);
+    addMovingObject('carPink.glb',6,4,8,'right',1.5,2,-704,-344);
+    addMovingObject('truckWhite.glb',6,8,16,'right',1.5,6,0,-472);
+    addMovingObject('truckBlack.glb',6,8,16,'left',1.5,14,448,536);
+    addMovingObject('busGreen.glb',6,8,18,'left',1.5,6,-384,-488);
+    addMovingObject('busGrey.glb',6,8,18,'down',1.5,9,664,-64);
+    addMovingObject('schoolbusYellow.glb',6,8,20,'left',1.5,16,-704,408);
+    addMovingObject('vehicle_policeCar.glb',6,4,8,'up',1.5,11,872,192);
+    addMovingObject('vehicle_fireTruck.glb',6,7,18,'down',1.5,15,-232,480);
+    for(let i=352; i >= -288; i-=256){
+        addStreetLights(-820,16,i,"right");
+    }
+    addStreetLights(-640,16,-436,"down");
+    for(let i=-256; i <= 256; i+=256){
+        addStreetLights(i,16,-500,"down");
+    }
+    addStreetLights(448,16,-180,"down");
+    addStreetLights(884,16,0,"left");
+    addStreetLights(756,16,384,"left");
+    for(let i=512; i >= 0; i-=256){
+        addStreetLights(i,16,564,"up");
+    }
+    addStreetLights(-320,16,436,"up");
 }
 
 document.getElementById("mute").addEventListener("click", function(){

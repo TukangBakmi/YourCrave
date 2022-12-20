@@ -11,7 +11,7 @@ const decceleration = -5.0;
 const runSpeed = 2;        // berarti 2x lebih cepat dari jalan
 const jumpSpeed = 1.1;      // berarti 1.1x lebih cepat dari jalan
 const turnSpeed = 4.0;      // kecepatan turn left/right
-const charScale = 0.006;     // berarti player diperkecil 100x
+const charScale = 0.006;     // player diperkecil
 // Jarak kamera terhadap karakter
 const camOffsetX = -12.0;
 const camOffsetY = 12.0;
@@ -76,7 +76,8 @@ class BasicCharacterController {
 
             this._target = fbx;
             this._params.scene.add(this._target);
-            this._target.position.set(0,0,0);
+            this._target.position.set(-900,0,0);
+            this._target.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), -Math.PI*3/2);
 
             this._mixer = new THREE.AnimationMixer(this._target);
             // Memberi status idle
