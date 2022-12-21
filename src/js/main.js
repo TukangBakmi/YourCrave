@@ -705,6 +705,7 @@ function addObjects() {
     addObject('building1.glb', -32, 74, 344);
     addObject('hospital.glb', -708, 78, -96);
     addObject('monas.glb', 320, 0.1, 120);
+    addObject('signal_tower.glb', -704,-10,320);
     addMovingObject('carOrange.glb', 6, 4, 8, 'down', 1.5, 1, -808, 0);
     addMovingObject('carBlue.glb', 6, 4, 8, 'left', 1.5, 8, 384, -168);
     addMovingObject('carPink.glb', 6, 4, 8, 'right', 1.5, 2, -704, -344);
