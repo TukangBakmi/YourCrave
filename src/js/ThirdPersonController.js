@@ -268,6 +268,7 @@ class BasicCharacterController {
     checkCollision(){
         this.limit(-158, 94, 426, 262);     //building1
         this.limit(-768, -648, -8, -184);     //hospital
+        this.limit(200, 448, 240, 0); //monas 
     }
     checkWorld(){
         if(Math.pow(this._target.position.x, 2) + Math.pow(this._target.position.z, 2) + Math.pow(250,2) >= Math.pow(worldWidth/2, 2)){
