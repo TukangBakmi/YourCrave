@@ -270,6 +270,7 @@ class BasicCharacterController {
         this.limit(-768, -648, -8, -184);   //hospital
         this.limit(200, 448, 240, 0);       //monas 
         this.limit(-768, -640, 384, 256)    //signal tower
+        this.limit(704, 834, 235, 35)    //convenience store
     }
     checkWorld(){
         if(Math.pow(this._target.position.x, 2) + Math.pow(this._target.position.z, 2) + Math.pow(250,2) >= Math.pow(worldWidth/2, 2)){
