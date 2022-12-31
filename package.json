@@ -15,6 +15,7 @@
     "@react-three/cannon": "^6.5.0",
     "cannon": "^0.6.2",
     "gsap": "^3.11.3",
+    "node": "^19.3.0",
     "suncalc": "^1.9.0",
     "three": "^0.145.0"
   }
