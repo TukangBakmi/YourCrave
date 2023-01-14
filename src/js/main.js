@@ -655,33 +655,33 @@ function addStreetLights(x, height, z, face) {
         });
         gltf.scene.position.set(x, height, z);
         scene.add(gltf.scene);
-        spotLight = new THREE.SpotLight(0xffffff, 0.4, 128, 1.3);
-        spotLight.castShadow = true;
-        spotLight.shadow.mapSize.width = 256;
-        spotLight.shadow.mapSize.height = 256;
+        // spotLight = new THREE.SpotLight(0xffffff, 0.4, 128, 1.3);
+        // spotLight.castShadow = true;
+        // spotLight.shadow.mapSize.width = 256;
+        // spotLight.shadow.mapSize.height = 256;
 
-        if (face == 'left') {
-            spotLight.position.set(x - 8, 2 * height - 1, z);
-            spotLight.target.position.set(x - 8, 0 * height, z);
-            gltf.scene.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), -Math.PI * 2 / 2);
-        }
-        if (face == 'right') {
-            spotLight.position.set(x + 8, 2 * height - 1, z);
-            spotLight.target.position.set(x + 8, 0 * height, z);
-            gltf.scene.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), -Math.PI * 0 / 2);
-        }
-        if (face == 'up') {
-            spotLight.position.set(x, 2 * height - 1, z - 8);
-            spotLight.target.position.set(x, 0 * height, z - 8);
-            gltf.scene.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), -Math.PI * 3 / 2);
-        }
-        if (face == 'down') {
-            spotLight.position.set(x, 2 * height - 1, z + 8);
-            spotLight.target.position.set(x - 8, 0 * height, z + 8);
-            gltf.scene.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), -Math.PI * 1 / 2);
-        }
-        scene.add(spotLight);
-        scene.add(spotLight.target);
+        // if (face == 'left') {
+        //     spotLight.position.set(x - 8, 2 * height - 1, z);
+        //     spotLight.target.position.set(x - 8, 0 * height, z);
+        //     gltf.scene.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), -Math.PI * 2 / 2);
+        // }
+        // if (face == 'right') {
+        //     spotLight.position.set(x + 8, 2 * height - 1, z);
+        //     spotLight.target.position.set(x + 8, 0 * height, z);
+        //     gltf.scene.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), -Math.PI * 0 / 2);
+        // }
+        // if (face == 'up') {
+        //     spotLight.position.set(x, 2 * height - 1, z - 8);
+        //     spotLight.target.position.set(x, 0 * height, z - 8);
+        //     gltf.scene.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), -Math.PI * 3 / 2);
+        // }
+        // if (face == 'down') {
+        //     spotLight.position.set(x, 2 * height - 1, z + 8);
+        //     spotLight.target.position.set(x - 8, 0 * height, z + 8);
+        //     gltf.scene.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), -Math.PI * 1 / 2);
+        // }
+        // scene.add(spotLight);
+        // scene.add(spotLight.target);
     });
 }
 
@@ -697,7 +697,8 @@ function addObjects() {
     charBody.position.set(0, 40, 576);
     world.addBody(charBody);
 
-    addObject('building.glb', 0, 0, 0);
+    addObject('building1.glb', 0, 0, 0);
+    addObject('building2.glb', 0, 0, 0);
     addMovingObject('carOrange.glb', 6, 4, 8, 'down', 1.5, 1, -808, 0);
     addMovingObject('carBlue.glb', 6, 4, 8, 'left', 1.5, 8, 384, -168);
     addMovingObject('carPink.glb', 6, 4, 8, 'right', 1.5, 2, -704, -344);
