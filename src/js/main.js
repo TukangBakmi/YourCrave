@@ -14,12 +14,8 @@ import {
     charPosY,
     charPosZ
 } from './ThirdPersonController.js';
-import {
-    GLTFLoader
-} from 'three/examples/jsm/loaders/GLTFLoader.js';
-import {
-    NearestFilter
-} from 'three';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+import {NearestFilter} from 'three';
 
 let camera, scene, renderer;
 let stats, pivot, dirLight, hemiLight, spotLight, sunAngle; // Untuk day/night
@@ -701,13 +697,7 @@ function addObjects() {
     charBody.position.set(0, 40, 576);
     world.addBody(charBody);
 
-    addObject('maple_tree (1).glb', 0, 0, 20);
-    addObject('building1.glb', -32, 74, 344);
-    addObject('hospital.glb', -708, 78, -96);   
-    addObject('monas.glb', 320, 0.1, 120);
-    addObject('signal_tower.glb', -704,-10,320);
-    addObject('museum.glb', 350, 0.1, -100)
-    addObject('convenience_store.glb', 768, 0, 160);
+    addObject('building.glb', 0, 0, 0);
     addMovingObject('carOrange.glb', 6, 4, 8, 'down', 1.5, 1, -808, 0);
     addMovingObject('carBlue.glb', 6, 4, 8, 'left', 1.5, 8, 384, -168);
     addMovingObject('carPink.glb', 6, 4, 8, 'right', 1.5, 2, -704, -344);
