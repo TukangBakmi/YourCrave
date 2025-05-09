@@ -48,6 +48,7 @@
 - Node.js & Vite — For local development and bundling
 
 ## 📸 Screenshots
+![image](https://github.com/user-attachments/assets/1c29c4ee-2b13-4e30-8584-01fc8c5b20b1)
 ![image](https://github.com/user-attachments/assets/7126bb3c-b6e4-4daf-a0d2-a4295b591c1f)
 
 ## 🙋‍♂️ Author
