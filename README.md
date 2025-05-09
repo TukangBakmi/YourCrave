@@ -40,7 +40,7 @@
   
 5. **Open your browser** and go to the address provided in the terminal.
 
-** 🧰 Technologies Used
+## 🧰 Technologies Used
 - Three.js — 3D rendering
 
 - JavaScript / HTML / CSS
